@@ -1,0 +1,477 @@
+/---------------------
+ -- three.bento
+ --
+ -- Bento support for three.js
+ --
+ -- Copyright (c) 2013 by Michael St. Hippolyte
+ --
+ --/
+ 
+site three [=
+
+    /------------ GLOBAL ---------------/
+
+    /---- global data ----/
+    
+    /---- site initialization ----/
+    init [=
+        log("three.init called");
+    =]
+    
+    /------------- SESSION --------------/
+
+   
+    /---- session initialization ----/
+    
+    session_init [=
+        log("three.session_init called");
+    =]
+
+
+    /----------- OBJECT MODEL -----------/
+
+   
+    /------- classes for script components -------/
+
+
+    /** base class of objects used in scene construction **/
+    script_object [=
+
+        /** Every object has a name.  The default, defined here, is to use
+         *  the current instance's type name.  So, for example:
+         *
+         *       camera p_camera = perspective_camera(60, 1, 1, 1000)
+         *       p_camera.name;
+         *
+         *  would output
+         *
+         *       p_camera
+         *
+         *  The name is used to reference the object in client scripts, so it 
+         *  must be unique in that scope.  If the type name is not unique,  
+         *  the subclass should override this to implement a different naming
+         *  scheme.    
+         **/
+
+        name = owner.type
+
+        /** To generate basic scripting operations in a general way, we define
+         *  "property" and "method", which translate Bento instantiations into 
+         *  either property assignments or method calls.  A base class, "member",
+         *  handles the common statement prologue.
+         **/  
+
+        member [=
+            name = owner.type
+
+            owner.name;
+            [| . |]
+            name;
+            sub;
+        =]
+
+        member field(x) [=
+            [| = |]
+            x;
+            [| ; |]
+        =]
+
+        member method(x),(x, y),(x, y, z) [=
+            [| ( |]
+            x;
+            with (y) [=
+                [| , |]
+                y;
+            =]
+            with (z) [=
+                [| , |]
+                z;
+            =]
+            [| ); |]
+        =]
+
+        log("instantiating object " + name);
+    =]
+
+    /** an object representing a javascript function **/
+    script_object js_function [=
+
+        body [?]
+
+        /-- declare the function --/
+        declare [|
+            function [= name; =]() {
+            [= body; =]
+            }
+        |]
+
+        /-- call the function --/
+        [| [= name; =](); |]
+    =]
+
+
+         
+    /----------- three.js-compatible object model ----------/
+
+    /---- primitives ----/
+    
+    dynamic vector3(xx, yy, zz) [=
+        double x = xx
+        double y = yy
+        double z = zz
+
+       [| new THREE.Vector3([= x; =], [= y; =], [=z; =]); |]
+
+    =] 
+
+    dynamic vector3(*) position(xx, yy, zz) [/]
+
+
+    /** Base class of objects used in scene construction.  These objects
+     *  correspond directly or indirectly to three.js objects.  Objects
+     *  with direct analogs among three.js objects generally have the same 
+     *  name as their three.js doppelgangers.
+     */
+
+    script_object three_object [=
+        decl [/]
+        three_class = "Object3D"
+        args[] = []
+        options{} = {}
+        position pos [?]
+
+        three_object objs[] = []
+        boolean is_composite = (objs.count > 1)
+
+        dynamic add(three_object obj) [=
+            log("....adding " + obj.name + " to " + name);
+            name;
+            [| .add( |]
+            obj.name;
+            [| ); |]
+        =]
+
+        dynamic field(pos) set_position [=
+            name = "position"
+        =]
+
+
+        construct [=
+            log("...constructing " + three_class + "...");
+            log("    ...args: " + (string) args);  
+            log("    ...options: " + (string) options);  
+            log("    ...decorated options: " + decorate(options));  
+
+            [| new THREE. |]
+            three_class;
+            [| ( |]
+
+            if (args) [=
+                arg_list(args);
+
+            =] else if (options) [= 
+                decorate(options);
+            =]
+
+            [| ) |]
+        =]
+
+        dynamic set_attributes [=
+            log("setting position of " + owner.type + " to " + pos);
+            with (pos) [|
+                [= name; =].position = [= pos; =]
+            |]            
+        =]         
+
+        super;
+        
+        /-- declare the object and call its constructor --/
+        if (decl) [=
+            decl;
+            
+        =] else if (three_class) [| 
+            var [= name; =] = [= construct; =];
+        |]
+        
+        set_attributes;
+    =]
+
+
+    /** containers of other objects **/
+    three_object composite_object [=
+        three_class = "Object3D"
+        position pos = position(0, 0, 0)
+
+        three_object objs[] = []
+        
+        log("composite object " + name + " has " + objs.count + " objs"); 
+        log("  ..objs[0]: " + objs[0].name + "   class: " + objs[0].three_class);
+        
+        super;
+        
+        for three_object o in objs [=
+            o;
+            add(o);
+        =]
+    =]
+
+
+    /** synthetic objects, which do not have a direct three.js corollary **/    
+
+    three_object synthetic_object [=
+        three_class = owner.type
+        position pos = position(0, 0, 0)
+        name [?]
+        decl [?]
+    =]
+
+
+    /------------- renderers -------------/
+
+    three_object renderer(width, height) [=
+        super;
+        set_size(width, height);
+     
+        set_size(width, height) [=
+            owner.name;
+            [| .setSize([= width; =], [= height; =]); |]
+        =]
+    =]
+
+
+    
+    renderer(*) canvas_renderer(boolean size_to_window), (width, height) [=
+        three_class = "CanvasRenderer"
+    =]
+    
+    renderer(*) webgl_renderer(boolean size_to_window), (width, height) [=
+        three_class = "WebGLRenderer"
+    =]
+    
+
+    /-------------- the scene ------------/
+   
+    composite_object scene(three_object[] scene_objs, camera scene_cam, width, height),
+                          (three_object[] scene_objs, width, height),
+                          (three_object[] scene_objs, camera scene_cam),
+                          (width, height),
+                          (three_object[] scene_objs) [=
+        keep objs
+        keep cam
+        keep aspect_ratio
+        keep scripts
+
+        three_class = "Scene"
+
+        three_object objs[] = scene_objs
+        camera cam = scene_cam ? scene_cam : default_scene_cam
+        aspect_ratio = ((width && height) ? (width + "/" + height) : "1");
+        scripts[] = []
+ 
+        with (width) [=
+            log("constructing scene " + name + ", width " + width + "  height " + height); 
+        =] else [=           
+            log("constructing scene " + name); 
+        =]
+        
+        log(objs.count + " scene objects");
+        for three_object o in objs [=
+            log("    ..." + o.three_class);
+        =] 
+
+        eval(aspect_ratio);
+
+        /-- instantiate this scene --/
+        js_comment("instantiating scene " + name);        
+
+        super;
+
+        /-- instantiate and add camera --/
+        js_comment("instantiating camera");
+
+        cam;
+        if (width && height) [=
+            cam.aspect(aspect_ratio);
+            cam.update_projection_matrix;
+        =]
+        add(cam);
+    =]
+    
+    /---- default scene camera ----/
+    
+    dynamic perspective_camera default_scene_cam [=
+        position pos = position(0, 2, 20)
+
+        super;
+        far(2000);    /--- 1.5 * backdrop.horizon); ---/
+        log("default_scene_cam name: " + name);
+        [|
+            [= name; =].target = new THREE.Vector3( 0, 0, 0 );
+        |]
+    =]
+
+
+
+        /-- lights --/
+
+    three_object light [=
+        three_class = "Light"
+    
+    =]    
+
+    light ambient_light [=
+        three_class = "AmbientLight"
+
+    =]
+
+    light directional_light [=
+        three_class = "DirectionalLight"
+
+    =]
+
+    light point_light [=
+        three_class = "PointLight"
+
+    =]
+
+    light spot_light [=
+        three_class = "SpotLight"
+
+    =]
+
+
+        /-- elementary visible objects --/
+    
+    three_object mesh(geometry g, material m) [=
+        three_class = "Mesh"
+        args[] = [ g.construct, m.construct ]
+    =]
+
+    
+    dynamic synthetic_object backdrop [=
+        geometry geo = sphere_geometry(horizon, seg_width, seg_height)
+        material m = basic_material
+        name = owner.type
+        
+        /-- default distance to horizon -- one kilometer  --/
+        int horizon = 1000
+        int seg_width = 100
+        int seg_height = 100
+        
+        decl [|
+            var [= name; =] = new THREE.Mesh( [= geo.construct; =], [= m.construct; =] ); 
+            [= name; =].scale.x = -1;
+        |]
+    =]
+
+        /-- composite objects --/
+        
+    three_object ambience [=
+        light lt [?]
+        backdrop bd [/]
+        
+        three_object[] objs = [ with (lt) [= lt =], if (bd) [= bd =] ]
+
+        super;
+        log("   ...backdrop: " + (bd ? bd : "null"));
+       
+
+    =]
+
+ 
+    /---- info/sample page ----/
+  
+    page(params) three_info(params{}) [=
+
+        /-------------------------/
+        /---- meta properties ----/
+
+        title = "three.bento"
+        viewport [| width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0 |]
+
+
+        /--------------------/
+        /----  the scene  ----/
+
+        scene sample_scene [=
+            basic_material red_material [=
+                color = "#FF0000"
+            =]
+            
+            three_object[] objs = [
+                mesh(cube_geometry(10, 10, 10), red_material) 
+            ]
+        =]
+      
+
+        /--------------------/
+        /---- the canvas ----/
+    
+        three_component(*) tc(scene s),(params{}) [=
+            id = owner.type
+        =]        
+
+        [|
+           <h2>three.bento</h2>
+           <h3>Bento support for three.js</h3>
+           <p>
+               three.bento is a library that makes it easy to write server
+               applications that deliver interactive 3D content.
+           </p>
+        |] 
+        tc(sample_scene);
+    =]
+    
+
+
+    /----------- javascript generation utilities -----------/
+
+    /** Construct a javascript comment, i.e. a comment in the code downloaded
+     *  to the client.
+     **/
+    
+    dynamic js_comment(comment) [=
+        newline; newline; "/"; "* ";
+        comment;
+        " *"; "/"; newline;
+    =]
+
+    /** Construct a javascript argument list from an array. **/
+    
+    arg_list(args[]) [=
+        if (args) [=
+            for int i from 0 to args.count [=
+                log("  i: " + i + "  args[i]: " + args[i]);
+                if (i > 0) [| , |]
+                args[i];
+            =] 
+        =]
+    =]
+
+
+    /-- JSON helpers --/
+
+    undecorated [/]
+
+    dynamic decorate(items{}) [=
+        "{ "; 
+        for k in items.keys and int i from 0 [=
+            if (i > 0) [=
+                ", ";
+            =]
+            k;
+            ": ";
+            if (!(items{k} isa undecorated)) [=
+                log(items{k}.type + " gets decoration"); 
+                '"';
+                items{k};
+                '"';
+            =] else [= 
+                log(items{k}.type + " is undecorated"); 
+                items{k};
+            =]
+        =]
+        " }";
+    =]   
+
+=]
