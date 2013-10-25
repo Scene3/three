@@ -49,8 +49,6 @@ site three [=
         sub_script [/]
         sub_funcs [/]
 
-        style [| width: 100%; height: 100%; |]
-
         /---- the three_component is the rendering canvas. ----/
 
         canvas_name = id
