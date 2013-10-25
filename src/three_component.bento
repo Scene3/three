@@ -335,7 +335,9 @@ site three [=
         =]
 
         js_function pre_render [=
-            body [/]
+            body [= 
+                this_scene.next_frame;
+            =]
         =]
         
         js_function post_render [=

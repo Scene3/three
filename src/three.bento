@@ -89,6 +89,10 @@ site three [=
             =]
             [| ); |]
         =]
+        
+        /-- animation logic, called for each frame --/
+        
+        next_frame [/]
 
         log("instantiating object " + name);
     =]
@@ -204,6 +208,13 @@ site three [=
 
         three_object objs[] = []
         
+        next_frame [=
+            for three_object o in objs [=
+                o.next_frame;
+            =]
+        =]        
+ 
+        
         log("composite object " + name + " has " + objs.count + " objs"); 
         log("  ..objs[0]: " + objs[0].name + "   class: " + objs[0].three_class);
         
@@ -267,7 +278,7 @@ site three [=
         camera cam = scene_cam ? scene_cam : default_scene_cam
         aspect_ratio = ((width && height) ? (width + "/" + height) : "1");
         scripts[] = []
- 
+
         with (width) [=
             log("constructing scene " + name + ", width " + width + "  height " + height); 
         =] else [=           
@@ -401,6 +412,11 @@ site three [=
             three_object[] objs = [
                 mesh(cube_geometry(10, 10, 10), red_material) 
             ]
+            
+            next_frame [|
+                mesh.rotation.x += 0.1;
+                mesh.rotation.y += 0.1;
+            |]
         =]
       
 
