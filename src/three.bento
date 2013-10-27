@@ -90,10 +90,6 @@ site three [=
             [| ); |]
         =]
         
-        /-- animation logic, called for each frame --/
-        
-        next_frame [/]
-
         log("instantiating object " + name);
     =]
 
@@ -147,6 +143,10 @@ site three [=
         three_object objs[] = []
         boolean is_composite = (objs.count > 1)
 
+        /-- animation logic, called for each frame --/
+
+        next_frame [?]
+
         dynamic add(three_object obj) [=
             log("....adding " + obj.name + " to " + name);
             name;
@@ -197,6 +197,13 @@ site three [=
             var [= name; =] = [= construct; =];
         |]
         
+        with (next_frame) [|
+            [= name; =].next_frame = function () {
+                [= next_frame; =]
+            }
+            
+        |]
+        
         set_attributes;
     =]
 
@@ -207,13 +214,6 @@ site three [=
         position pos = position(0, 0, 0)
 
         three_object objs[] = []
-        
-        next_frame [=
-            for three_object o in objs [=
-                o.next_frame;
-            =]
-        =]        
- 
         
         log("composite object " + name + " has " + objs.count + " objs"); 
         log("  ..objs[0]: " + objs[0].name + "   class: " + objs[0].three_class);
@@ -239,7 +239,15 @@ site three [=
 
     /------------- renderers -------------/
 
-    three_object renderer(width, height) [=
+    three_object renderer(canvas_name, width, height),
+                         (width, height),
+                         (boolean size_to_window) [=
+        
+        undecorated canv_name = canvas_name
+        
+        options{} = { if (canv_name) [= "canvas": canv_name =] }
+
+        log(" ----> renderer called for canvas " + canv_name);
         super;
         set_size(width, height);
      
@@ -251,11 +259,15 @@ site three [=
 
 
     
-    renderer(*) canvas_renderer(boolean size_to_window), (width, height) [=
+    renderer(*) canvas_renderer(canvas_name, width, height),
+                               (width, height),
+                               (boolean size_to_window) [=
         three_class = "CanvasRenderer"
     =]
     
-    renderer(*) webgl_renderer(boolean size_to_window), (width, height) [=
+    renderer(*) webgl_renderer(canvas_name, width, height),
+                               (width, height),
+                               (boolean size_to_window) [=
         three_class = "WebGLRenderer"
     =]
     
@@ -274,6 +286,15 @@ site three [=
 
         three_class = "Scene"
 
+        next_frame [=
+            for three_object o in objs [=
+                 if (o.next_frame) [=
+                     js_comment("next_frame for " + o.name);
+                     o.next_frame;
+                 =]
+            =]
+        =]
+
         three_object objs[] = scene_objs
         camera cam = scene_cam ? scene_cam : default_scene_cam
         aspect_ratio = ((width && height) ? (width + "/" + height) : "1");
@@ -289,6 +310,8 @@ site three [=
         for three_object o in objs [=
             log("    ..." + o.three_class);
         =] 
+
+
 
         eval(aspect_ratio);
 
@@ -414,8 +437,8 @@ site three [=
             ]
             
             next_frame [|
-                mesh.rotation.x += 0.1;
-                mesh.rotation.y += 0.1;
+                mesh.rotation.x += 0.02;
+                mesh.rotation.y += 0.02;
             |]
         =]
       
@@ -424,7 +447,7 @@ site three [=
         /---- the canvas ----/
     
         three_component(*) tc(scene s),(params{}) [=
-            id = owner.type
+            canvas_id = owner.type
         =]        
 
         [|

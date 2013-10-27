@@ -36,7 +36,9 @@ site three [=
         /---- overridable properties ----/
         
         /---- required override: subclasses must define this ----/
-        id [?]
+        canvas_id [?]
+
+        id = canvas_container
 
         /---- optional overrides ----/
   
@@ -50,9 +52,7 @@ site three [=
         sub_funcs [/]
 
         /---- the three_component is the rendering canvas. ----/
-
-        canvas_name = id
-        canvas_id = id
+        canvas_name = canvas_id
 
         /---- subclasses may override these fields to define a fixed size 
          ---- canvas; otherwise the canvas is set to the width and height 
@@ -60,8 +60,13 @@ site three [=
          ----/
         canvas_width [| canvasWidth |]
         canvas_height [| canvasHeight |]
-
         boolean size_to_window = true
+
+        /---- names of various canvas-related things ----/
+        canvas_container = canvas_id + "_container"
+        canvas_renderer = canvas_id + "_renderer"
+        canvas_scene = canvas_id + "_scene"
+        canvas_camera = canvas_id + "_camera"
 
         /---- subclasses may override this to add additional scripts to the list  ----/
         include_scripts = [ "/js/lib/three.js" ]
@@ -120,9 +125,9 @@ site three [=
         /-------------------------------/
         /-------- the renderer ---------/
 
-        webgl_renderer(*) this_renderer(boolean size_to_window), (width, height) [=
+        webgl_renderer(*) this_renderer(cname, width, height) [=
             super;            
-            canvas_name;
+            canvas_container;
             [| .appendChild( |]
             name;
             [| .domElement); |]
@@ -151,9 +156,11 @@ site three [=
                     
             [| <script> |]
             
-            /-- see if webgl is accessible --/  
-            log("detect renderers");
-            detect_renderers;
+            /-- create the canvas for rendering, and in the process see 
+             -- if HTML5 and WebGL are supported
+             --/  
+            log("create canvas");
+            create_canvas;
 
             /-- declare top-level functions and variables --/
             log("declaring script variables");
@@ -166,11 +173,10 @@ site three [=
             /-- proceed, providing there is webgl --/            
             [| if (webglEnabled) { |]
 
-                log("setting canvas size");
-                resize_canvas;
+                [| recalcCanvasSize(); |]
 
-                log("constructing renderer");
-                this_renderer(canvas_width, canvas_height);
+                log("constructing renderer id " + canvas_id + "   width " + canvas_width + "   height " + canvas_height);
+                this_renderer(canvas_id, canvas_width, canvas_height);
 
                 /-- construct the scene --/
                 log("constructing scene");
@@ -196,7 +202,7 @@ site three [=
             /-- no webgl --/
             [| } else { |]
                 /-- notify the user and exit --/
-                canvas_name;
+                canvas_container;
                 [| .innerHTML = "<p><strong>Your hardware or software does not support the graphics capability required by this page.</strong></p>"; |]
             [| } |]
 
@@ -212,23 +218,23 @@ site three [=
          *  component.
          **/
         declare_global_vars [|
-            var [= canvas_name; =] = document.getElementById("[= canvas_id; =]");
-            var canvasWidth = [= canvas_name; =].clientWidth;
-            var canvasHeight = [= canvas_name; =].clientHeight;
-            var [= canvas_name; =]_renderer;
-            var [= canvas_name; =]_scene;
-            var [= canvas_name; =]_camera;
+            var [= canvas_container; =] = document.getElementById("[= id; =]");
+            var canvasWidth = [= canvas_container; =].clientWidth;
+            var canvasHeight = [= canvas_container; =].clientHeight;
+            var [= canvas_renderer; =];
+            var [= canvas_scene; =];
+            var [= canvas_camera; =];
         |]  
         
         assign_global_vars(scene s) [|
-            [= canvas_name; =]_renderer = this_renderer;
-            [= canvas_name; =]_scene = [= this_scene.name; =];
-            [= canvas_name; =]_camera = [= this_camera(s).name; =];
+            [= canvas_renderer; =] = this_renderer;
+            [= canvas_scene; =] = [= this_scene.name; =];
+            [= canvas_camera; =] = [= this_camera(s).name; =];
 
         |]
 
         update_global_vars(params{}) [=
-            cam_pos = canvas_name + "_camera.position"
+            cam_pos = canvas_camera + ".position"
                    
             if (params{"camera_x"}) [=
                 cam_pos;
@@ -263,18 +269,16 @@ site three [=
 
         
         
-        /** Determine what kind of graphics support is available on the client. **/
-        detect_renderers [|
-             var canvasEnabled = !!window.CanvasRenderingContext2D;
-             var webglEnabled = (
-                 function () { 
+        /** Create the canvas, depending on what kind of graphics support is available on the client. **/
+        create_canvas [|
+             var [= canvas_name; =] = document.createElement("canvas");
+             [= canvas_name; =].id = "[= canvas_id; =]";
+             var canvasEnabled = [= canvas_name; =] && !!window.CanvasRenderingContext2D;
+             var webglEnabled = [= canvas_name; =] && (
+                 function (canvas) { 
                      try {
                          if (!window.WebGLRenderingContext) {
                              return false;
-                         }
-                         var canvas = document.createElement("canvas");
-                         if (!canvas) {
-                             return false;  
                          }
                          if (canvas.getContext("webgl")) {
                              return true;
@@ -285,7 +289,7 @@ site three [=
                      } catch (e) { 
                          return false;
                      }
-                 } )();
+                 } ([= canvas_name; =]));
         |]
         
                       
@@ -293,7 +297,6 @@ site three [=
         declare [=
             declare_global_vars;
             declare_utils;
-            pre_render.declare;
             render.declare;
             post_render.declare;                
             animate.declare;
@@ -315,7 +318,7 @@ site three [=
         js_function animate [=
             body [|
                 requestAnimationFrame(animate);
-                pre_render();
+                [= canvas_name; =]_scene.next_frame();
                 render();
                 post_render();
             |]
@@ -323,20 +326,15 @@ site three [=
         
         js_function render [=
             body [=
-                canvas_name; 
-                [| _renderer.render( |]
-                canvas_name;
-                [| _scene, |]
-                canvas_name;
-                [| _camera); |]
+                canvas_renderer; 
+                [| .render( |]
+                canvas_scene;
+                [| , |]
+                canvas_camera;
+                [| ); |]
             =]
         =]
 
-        js_function pre_render [=
-            body [= 
-                this_scene.next_frame;
-            =]
-        =]
         
         js_function post_render [=
             body [/]
@@ -349,15 +347,15 @@ site three [=
                 if (size_to_window) [|
                     var x = 0;
                     var y = 0;
-                    for (var element = [= canvas_name; =]; element != null; element = element.offsetParent) {
+                    for (var element = [= canvas_container; =]; element != null; element = element.offsetParent) {
                        x += element.offsetLeft;
                        y += element.offsetTop;
                     }
                     canvasWidth = window.innerWidth - x;
                     canvasHeight = window.innerHeight - y;
                 |] else [|
-                    canvasWidth = [= canvas_name; =].clientWidth;
-                    canvasHeight = [= canvas_name; =].clientHeight;
+                    canvasWidth = [= canvas_container; =].clientWidth;
+                    canvasHeight = [= canvas_container; =].clientHeight;
                 |]
             =]
             }
