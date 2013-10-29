@@ -41,10 +41,10 @@ site three [=
     
     /---- materials ----/
     
-    dynamic material basic_material [=
+    material basic_material [=
         three_class = "MeshBasicMaterial"
         
-        color [?]
+        undecorated color [?]
         map [?]
         light_map [?]
         env_map [?]
@@ -84,4 +84,11 @@ site three [=
                     }                     
     =]
 
+    basic_material lambert_material [=
+        three_class = "MeshLambertMaterial"
+    =]
+
+    basic_material phong_material [=
+        three_class = "MeshPhongMaterial"
+    =]
 =]

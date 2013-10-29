@@ -126,6 +126,11 @@ site three [=
 
     dynamic vector3(*) position(xx, yy, zz) [/]
 
+    dynamic three_color(c) [=
+        int color = c
+        
+        [| new THREE.Color([= color; =]); |]
+    =]
 
     /** Base class of objects used in scene construction.  These objects
      *  correspond directly or indirectly to three.js objects.  Objects
@@ -348,29 +353,26 @@ site three [=
 
         /-- lights --/
 
-    three_object light [=
+    three_object light(clr) [=
         three_class = "Light"
-    
+        args[] = [ color ]
+        undecorated color = clr
     =]    
 
-    light ambient_light [=
+    light(*) ambient_light(clr) [=
         three_class = "AmbientLight"
-
     =]
 
-    light directional_light [=
+    light(*) directional_light(clr) [=
         three_class = "DirectionalLight"
-
     =]
 
-    light point_light [=
+    light(*) point_light(clr) [=
         three_class = "PointLight"
-
     =]
 
-    light spot_light [=
+    light(*) spot_light(clr) [=
         three_class = "SpotLight"
-
     =]
 
 
@@ -438,11 +440,12 @@ site three [=
 
         scene sample_scene [=
             basic_material red_material [=
-                color = "#FF0000"
+                undecorated color = 0xFF0000
             =]
             
             three_object[] objs = [
-                mesh(cube_geometry(10, 10, 10), red_material) 
+                mesh(cube_geometry(10, 10, 10), red_material),
+                ambient_light(0x8F8F8F)
             ]
             
             next_frame [|
@@ -514,12 +517,12 @@ site three [=
             k;
             ": ";
             if (!(items{k} isa undecorated)) [=
-                log(items{k}.type + " gets decoration"); 
+                log(k + " gets decoration"); 
                 '"';
                 items{k};
                 '"';
             =] else [= 
-                log(items{k}.type + " is undecorated"); 
+                log(k + " is undecorated"); 
                 items{k};
             =]
         =]
