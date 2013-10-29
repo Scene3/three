@@ -439,18 +439,20 @@ site three [=
         /----  the scene  ----/
 
         scene sample_scene [=
-            basic_material red_material [=
+            phong_material red_material [=
                 undecorated color = 0xFF0000
             =]
             
+            mesh red_cube = mesh(cube_geometry(10, 10, 10), red_material)
+            
             three_object[] objs = [
-                mesh(cube_geometry(10, 10, 10), red_material),
-                ambient_light(0x8F8F8F)
+                red_cube,
+                ambient_light(0xAFAFAF)
             ]
             
             next_frame [|
-                mesh.rotation.x += 0.02;
-                mesh.rotation.y += 0.02;
+                red_cube.rotation.x += 0.02;
+                red_cube.rotation.y += 0.02;
             |]
         =]
       
