@@ -35,7 +35,7 @@ site three [=
 
 
     /** base class of objects used in scene construction **/
-    script_object [=
+    dynamic script_object [=
 
         /** Every object has a name.  The default, defined here, is to use
          *  the current instance's type name.  So, for example:
@@ -94,7 +94,7 @@ site three [=
     =]
 
     /** an object representing a javascript function **/
-    script_object js_function [=
+    dynamic script_object js_function [=
 
         body [?]
 
@@ -138,7 +138,7 @@ site three [=
      *  name as their three.js doppelgangers.
      */
 
-    script_object three_object [=
+    dynamic script_object three_object [=
         decl [/]
         three_class = "Object3D"
         args[] = []
@@ -165,7 +165,7 @@ site three [=
         =]
 
 
-        construct [=
+        dynamic construct [=
             log("...constructing " + three_class + "...");
             log("    ...args: " + (string) args);  
             log("    ...options: " + (string) options);  
@@ -177,6 +177,7 @@ site three [=
 
             if (args) [=
                 arg_list(args);
+                log("    ...arg_list: " + arg_list(args));  
 
             =] else if (options) [= 
                 decorate(options);
@@ -339,13 +340,13 @@ site three [=
     /---- default scene camera ----/
     
     dynamic perspective_camera default_scene_cam [=
-        position pos = position(0, 2, 20)
+        position pos = position(0, 2, 25)
 
         super;
         far(2000);    /--- 1.5 * backdrop.horizon); ---/
         log("default_scene_cam name: " + name);
         [|
-            [= name; =].target = new THREE.Vector3( 0, 0, 0 );
+            [= name; =].target = new THREE.Vector3( 0, 2, 0 );
         |]
     =]
 
@@ -378,7 +379,7 @@ site three [=
 
         /-- elementary visible objects --/
     
-    three_object mesh(geometry g, material m) [=
+    dynamic three_object mesh(geometry g, material m) [=
         three_class = "Mesh"
         args[] = [ g.construct, m.construct ]
     =]
@@ -432,6 +433,7 @@ site three [=
                 min-width: 100%;
                 min-height: 100%;
                 margin: 0;
+                background: #111111;
             }
         |]
 
@@ -439,20 +441,46 @@ site three [=
         /----  the scene  ----/
 
         scene sample_scene [=
-            phong_material red_material [=
-                undecorated color = 0xFF0000
+            phong_material blue_material [=
+                undecorated color = 0x3333CC
             =]
             
-            mesh red_cube = mesh(cube_geometry(10, 10, 10), red_material)
+            mesh(cube_geometry(10, 10, 10), blue_material) blue_cube [=
+                position pos = position(0, 2, 0)
+            =]
+            point_light(0xFFFF33) bright_yellow_light [=
+                position pos = position(0, 50, 0)
+            =]
             
+            point_light(0xFF0000) bright_red_light [=
+                position pos = position(-30, 13, 20)
+            =]
+
+            point_light(0x00FF00) bright_green_light [=
+                position pos = position(30, 13, 20)
+            =]
+
+            point_light(0x5555FF) bright_blue_light [=
+                position pos = position(0, -50, 0)
+            =]
+
+            point_light(0xAAAAAA) soft_white_light [=
+                position pos = position(0, 2, 40)
+            =]
+
             three_object[] objs = [
-                red_cube,
-                ambient_light(0xAFAFAF)
+                blue_cube,
+                bright_yellow_light,
+                bright_red_light,
+                bright_green_light,
+                bright_blue_light,
+                soft_white_light
             ]
             
             next_frame [|
-                red_cube.rotation.x += 0.02;
-                red_cube.rotation.y += 0.02;
+                blue_cube.rotation.x += 0.02;
+                blue_cube.rotation.y -= 0.02;
+                blue_cube.rotation.z -= 0.01;
             |]
         =]
       
@@ -461,13 +489,20 @@ site three [=
         /---- the canvas ----/
     
         three_component(*) tc(scene s),(params{}) [=
-            style  [| margin: 0; padding: 0; |]
+            style  [| position: absolute; top: 0; left: 0;
+                      width: 100%; height: 100%; 
+                      margin: 0; padding: 0;
+                      z-index: 0;
+                   |]
 
             canvas_id = owner.type
         =]        
 
         [|
-           <div style="margin: 0; padding: 8px" >
+           <div style="position: absolute; top: 16px; left: 16px;
+                       width: 30em; padding: 12px;
+                       color: #88FFAA;
+                       z-index: 100; background: rgba(255, 255, 255, 0.1)" >
                <h2>three.bento</h2>
                <h3>Bento support for three.js</h3>
                <p>
@@ -495,7 +530,7 @@ site three [=
 
     /** Construct a javascript argument list from an array. **/
     
-    arg_list(args[]) [=
+    dynamic arg_list(args[]) [=
         if (args) [=
             for int i from 0 to args.count [=
                 log("  i: " + i + "  args[i]: " + args[i]);
