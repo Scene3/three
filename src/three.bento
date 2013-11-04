@@ -126,6 +126,9 @@ site three [=
 
     dynamic vector3(*) position(xx, yy, zz) [/]
 
+    dynamic vector3(*) rotation(xx, yy, zz) [/]
+    
+
     dynamic three_color(c) [=
         int color = c
         
@@ -314,7 +317,7 @@ site three [=
         
         log(objs.count + " scene objects");
         for three_object o in objs [=
-            log("    ..." + o.three_class);
+            log("    ..." + o);
         =] 
 
 
