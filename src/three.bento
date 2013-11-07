@@ -116,9 +116,10 @@ site three [=
     /---- primitives ----/
     
     dynamic vector3(xx, yy, zz) [=
-        double x = xx
-        double y = yy
-        double z = zz
+        
+        keep: double x = xx
+        keep: double y = yy
+        keep: double z = zz
 
        [| new THREE.Vector3([= x; =], [= y; =], [=z; =]); |]
 
@@ -142,6 +143,10 @@ site three [=
      */
 
     dynamic script_object three_object [=
+        keep three_class
+        keep pos
+        keep objs     
+    
         decl [/]
         three_class = "Object3D"
         args[] = []
