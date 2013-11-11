@@ -116,12 +116,12 @@ site three [=
     /---- primitives ----/
     
     dynamic vector3(xx, yy, zz) [=
-        
-        keep: double x = xx
-        keep: double y = yy
-        keep: double z = zz
+        double x = xx
+        double y = yy
+        double z = zz
 
-       [| new THREE.Vector3([= x; =], [= y; =], [=z; =]); |]
+        log("...instantiating vector3 of type "+ type + " and x,y,z = " + x + "," + y + "," + z);
+        [| new THREE.Vector3([= x; =], [= y; =], [=z; =]); |]
 
     =] 
 
@@ -143,15 +143,11 @@ site three [=
      */
 
     dynamic script_object three_object [=
-        keep three_class
-        keep pos
-        keep objs     
-    
         decl [/]
         three_class = "Object3D"
         args[] = []
         options{} = {}
-        position pos [?]
+        position pos = position(0, 0, 0)
 
         three_object objs[] = []
         boolean is_composite = (objs.count > 1)
@@ -293,11 +289,6 @@ site three [=
                           (three_object[] scene_objs, camera scene_cam),
                           (width, height),
                           (three_object[] scene_objs) [=
-        keep objs
-        keep cam
-        keep aspect_ratio
-        keep scripts
-
         three_class = "Scene"
 
         next_frame [=
