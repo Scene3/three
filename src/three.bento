@@ -11,11 +11,32 @@ site three [=
 
     /------------ GLOBAL ---------------/
 
+    /---- global constants ----/
+    
+    static int LOG_DEBUG   = 3
+    static int LOG_INFO    = 2
+    static int LOG_WARNING = 1
+    static int LOG_ERROR   = 0
+
+
     /---- global data ----/
+
+    global int logging_level(int level) = level
+
+    global set_logging_level(int level) [=
+        eval(logging_level(: level :));
+        log("three.logging_level set to " + 
+            (level == 0 ? "LOG_ERROR" :
+            (level == 1 ? "LOG_WARNING" :
+            (level == 2 ? "LOG_INFO" :
+            (level == 3 ? "LOG_DEBUG" : "unrecognized value (" + level + ")")))));
+    =]
+      
+  
     
     /---- site initialization ----/
     init [=
-        log("three.init called");
+        info_log("three.init called");
     =]
     
     /------------- SESSION --------------/
@@ -24,7 +45,7 @@ site three [=
     /---- session initialization ----/
     
     session_init [=
-        log("three.session_init called");
+        info_log("three.session_init called");
     =]
 
 
@@ -90,7 +111,7 @@ site three [=
             [| ); |]
         =]
         
-        log("instantiating object " + name);
+        debug_log("instantiating object " + name);
     =]
 
     /** an object representing a javascript function **/
@@ -120,7 +141,7 @@ site three [=
         double y = yy
         double z = zz
 
-        log("...instantiating vector3 of type "+ type + " and x,y,z = " + x + "," + y + "," + z);
+        debug_log("...instantiating vector3 of type "+ type + " and x,y,z = " + x + "," + y + "," + z);
         [| new THREE.Vector3([= x; =], [= y; =], [=z; =]); |]
 
     =] 
@@ -157,7 +178,7 @@ site three [=
         next_frame [?]
 
         dynamic add(three_object obj) [=
-            log("....adding " + obj.name + " to " + name);
+            debug_log("....adding " + obj.name + " to " + name);
             name;
             [| .add( |]
             obj.name;
@@ -170,10 +191,10 @@ site three [=
 
 
         dynamic construct [=
-            log("...constructing " + three_class + "...");
-            log("    ...args: " + (string) args);  
-            log("    ...options: " + (string) options);  
-            log("    ...decorated options: " + decorate(options));  
+            debug_log("...constructing " + three_class + "...");
+            debug_log("    ...args: " + (string) args);  
+            debug_log("    ...options: " + (string) options);  
+            debug_log("    ...decorated options: " + decorate(options));  
 
             [| new THREE. |]
             three_class;
@@ -181,7 +202,7 @@ site three [=
 
             if (args) [=
                 arg_list(args);
-                log("    ...arg_list: " + arg_list(args));  
+                debug_log("    ...arg_list: " + arg_list(args));  
 
             =] else if (options) [= 
                 decorate(options);
@@ -191,7 +212,7 @@ site three [=
         =]
 
         dynamic set_attributes [=
-            log("setting position of " + owner.type + " to " + pos);
+            debug_log("setting position of " + owner.type + " to " + pos);
             with (pos) [|
                 [= name; =].position = [= pos; =]
             |]            
@@ -225,8 +246,8 @@ site three [=
 
         three_object objs[] = []
         
-        log("composite object " + name + " has " + objs.count + " objs"); 
-        log("  ..objs[0]: " + objs[0].name + "   class: " + objs[0].three_class);
+        debug_log("composite object " + name + " has " + objs.count + " objs"); 
+        debug_log("  ..objs[0]: " + objs[0].name + "   class: " + objs[0].three_class);
         
         super;
         
@@ -257,7 +278,6 @@ site three [=
         
         options{} = { if (canv_name) [= "canvas": canv_name =] }
 
-        log(" ----> renderer called for canvas " + canv_name);
         super;
         set_size(width, height);
      
@@ -306,14 +326,14 @@ site three [=
         scripts[] = []
 
         with (width) [=
-            log("constructing scene " + name + ", width " + width + "  height " + height); 
+            info_log("constructing scene " + name + ", width " + width + "  height " + height); 
         =] else [=           
-            log("constructing scene " + name); 
+            info_log("constructing scene " + name); 
         =]
         
-        log(objs.count + " scene objects");
+        info_log(objs.count + " scene objects");
         for three_object o in objs [=
-            log("    ..." + o);
+            debug_log("    ..." + o);
         =] 
 
 
@@ -343,7 +363,7 @@ site three [=
 
         super;
         far(2000);    /--- 1.5 * backdrop.horizon); ---/
-        log("default_scene_cam name: " + name);
+        debug_log("default_scene_cam name: " + name);
         [|
             [= name; =].target = new THREE.Vector3( 0, 2, 0 );
         |]
@@ -409,7 +429,7 @@ site three [=
         three_object[] objs = [ with (lt) [= lt =], if (bd) [= bd =] ]
 
         super;
-        log("   ...backdrop: " + (bd ? bd : "null"));
+        debug_log("   ...backdrop: " + (bd ? bd : "null"));
        
 
     =]
@@ -532,7 +552,7 @@ site three [=
     dynamic arg_list(args[]) [=
         if (args) [=
             for int i from 0 to args.count [=
-                log("  i: " + i + "  args[i]: " + args[i]);
+                debug_log("  i: " + i + "  args[i]: " + args[i]);
                 if (i > 0) [| , |]
                 args[i];
             =] 
@@ -553,16 +573,42 @@ site three [=
             k;
             ": ";
             if (!(items{k} isa undecorated)) [=
-                log(k + " gets decoration"); 
+                debug_log(k + " gets decoration"); 
                 '"';
                 items{k};
                 '"';
             =] else [= 
-                log(k + " is undecorated"); 
+                debug_log(k + " is undecorated"); 
                 items{k};
             =]
         =]
         " }";
     =]   
 
+    /-- Logging --/
+    
+    error_log(str) [=
+        if (logging_level >= LOG_ERROR) [=
+            log(str);
+        =]
+    =]
+    
+    warning_log(str) [=
+        if (logging_level >= LOG_WARNING) [=
+            log(str);
+        =]
+    =]
+
+    info_log(str) [=
+        if (logging_level >= LOG_INFO) [=
+            log(str);
+        =]
+    =]
+
+    debug_log(str) [=
+        if (logging_level >= LOG_DEBUG) [=
+            log(str);
+        =]
+    =]
+   
 =]

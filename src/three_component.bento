@@ -138,20 +138,20 @@ site three [=
         /------ scripting ------/
         
         scripts [=
-            log("instantiating include_scripts");
+            info_log("instantiating include_scripts");
             for s in include_scripts [|
                 <script src="[= s; =]"></script>
             |]
-            log("instantiating main_script");
+            info_log("instantiating main_script");
             main_script;
          =]
 
     
          main_script [=
 
-            log("main_script called with scene " + this_scene.type + " with " + this_scene.objs.count + " objects");
+            debug_log("main_script called with scene " + this_scene.type + " with " + this_scene.objs.count + " objects");
             for three_object o in this_scene.objs [=
-                log("   ..." + o.type);
+                debug_log("   ..." + o.type);
             =]
                     
             [| <script> |]
@@ -159,11 +159,11 @@ site three [=
             /-- create the canvas for rendering, and in the process see 
              -- if HTML5 and WebGL are supported
              --/  
-            log("create canvas");
+            debug_log("create canvas");
             create_canvas;
 
             /-- declare top-level functions and variables --/
-            log("declaring script variables");
+            debug_log("declaring script variables");
             declare;
 
             if (run_scripts_on_load) [=
@@ -175,7 +175,7 @@ site three [=
 
                 [| recalcCanvasSize(); |]
 
-                log("constructing renderer id " + canvas_id + "   width " + canvas_width + "   height " + canvas_height);
+                debug_log("constructing renderer id " + canvas_id + "   width " + canvas_width + "   height " + canvas_height);
                 this_renderer(canvas_id, canvas_width, canvas_height);
 
                 if (size_to_window) [|
@@ -183,13 +183,13 @@ site three [=
                 |]
 
                 /-- construct the scene --/
-                log("constructing scene");
+                debug_log("constructing scene");
                 this_scene;
 
-                log("assigning global variables");
+                debug_log("assigning global variables");
                 assign_global_vars(this_scene);
                 
-                log("add scene/subclass scripts");
+                debug_log("add scene/subclass scripts");
 
                 /-- let the scene add to the script --/
                 if (this_scene.scripts) [=
@@ -200,7 +200,7 @@ site three [=
                 sub_script;
 
                 /-- drop into the rendering loop, from whence we will not return --/
-                log("begin rendering loop");
+                info_log("begin rendering loop");
                 run;
 
             /-- no webgl --/
@@ -378,9 +378,9 @@ site three [=
 
         /---- full instantiation ----/
         with (new_scene) [=
-            log("instantiating three_component");    
+            info_log("instantiating three_component");    
             sub;
-            log("instantiating three_component scripts");
+            debug_log("instantiating three_component scripts");
             scripts;
             
         /---- respond to ajax call ----/
