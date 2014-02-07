@@ -29,9 +29,6 @@ site three [=
    
     component three_component(scene new_scene),(params{}) [=
     
-        keep this_camera
-        keep this_scene
-  
         /--------------------------------/
         /---- overridable properties ----/
         
@@ -113,13 +110,13 @@ site three [=
         /-------------------------------/
         /---------- the scene ----------/
 
-        scene this_scene = new_scene(canvas_width, canvas_height)
+        keep: scene this_scene = new_scene(canvas_width, canvas_height)
         
 
         /-------------------------------/
         /---------- the camera ---------/
 
-        camera this_camera = this_scene.cam
+        keep: camera this_camera = this_scene.cam
 
 
         /-------------------------------/
