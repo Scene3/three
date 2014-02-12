@@ -184,6 +184,12 @@ site three [=
             obj.name;
             [| ); |]
         =]
+        
+        dynamic rotate(float x, float y, float z) [=
+            name; [| .rotation.x += [= x; =]; |]
+            name; [| .rotation.y += [= y; =]; |]
+            name; [| .rotation.z += [= z; =]; |]
+        =]
 
         dynamic field(pos) set_position [=
             name = "position"
@@ -496,11 +502,9 @@ site three [=
                 soft_white_light
             ]
             
-            next_frame [|
-                blue_cube.rotation.x += 0.02;
-                blue_cube.rotation.y -= 0.02;
-                blue_cube.rotation.z -= 0.01;
-            |]
+            next_frame [=
+                blue_cube.rotate(0.02, -0.02, -0.01);
+            =]
         =]
       
 
