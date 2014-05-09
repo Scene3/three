@@ -283,14 +283,14 @@ site three [=
         undecorated canv_name = canvas_name
         
         options{} = { if (canv_name) [= "canvas": canv_name =] }
-
-        super;
-        set_size(width, height);
      
         set_size(width, height) [=
             owner.name;
             [| .setSize([= width; =], [= height; =]); |]
         =]
+
+        super;
+        set_size(width, height);
     =]
 
 
@@ -518,7 +518,7 @@ site three [=
                       z-index: 0;
                    |]
 
-            canvas_id = owner.type
+            canvas_id = "tc"
         =]        
 
         [|
@@ -591,25 +591,25 @@ site three [=
 
     /-- Logging --/
     
-    error_log(str) [=
+    dynamic error_log(str) [=
         if (logging_level >= LOG_ERROR) [=
             log(str);
         =]
     =]
     
-    warning_log(str) [=
+    dynamic warning_log(str) [=
         if (logging_level >= LOG_WARNING) [=
             log(str);
         =]
     =]
 
-    info_log(str) [=
+    dynamic info_log(str) [=
         if (logging_level >= LOG_INFO) [=
             log(str);
         =]
     =]
 
-    debug_log(str) [=
+    dynamic debug_log(str) [=
         if (logging_level >= LOG_DEBUG) [=
             log(str);
         =]

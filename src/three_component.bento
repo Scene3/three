@@ -110,7 +110,7 @@ site three [=
         /-------------------------------/
         /---------- the scene ----------/
 
-        keep: scene this_scene = new_scene(canvas_width, canvas_height)
+        keep: scene this_scene = new_scene
         
 
         /-------------------------------/
@@ -146,7 +146,10 @@ site three [=
     
          main_script [=
 
-            debug_log("main_script called with scene " + this_scene.type + " with " + this_scene.objs.count + " objects");
+            debug_log("main_script called with scene " + this_scene.name + " with " + this_scene.objs.count + " objects");
+            
+            debug_log(" obj[0] " + this_scene.objs[0].type); 
+            
             for three_object o in this_scene.objs [=
                 debug_log("   ..." + o.type);
             =]
@@ -230,7 +233,7 @@ site three [=
         assign_global_vars(scene s) [|
             [= canvas_renderer; =] = this_renderer;
             [= canvas_scene; =] = [= this_scene.name; =];
-            [= canvas_camera; =] = [= this_camera(s).name; =];
+            [= canvas_camera; =] = [= this_camera.name; =];
 
         |]
 
