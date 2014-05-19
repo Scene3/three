@@ -114,12 +114,6 @@ site three [=
         
 
         /-------------------------------/
-        /---------- the camera ---------/
-
-        keep: camera this_camera = this_scene.cam
-
-
-        /-------------------------------/
         /-------- the renderer ---------/
 
         webgl_renderer(*) this_renderer(cname, width, height) [=
@@ -187,7 +181,7 @@ site three [=
                 this_scene;
 
                 debug_log("assigning global variables");
-                assign_global_vars(this_scene);
+                assign_global_vars;
                 
                 debug_log("add scene/subclass scripts");
 
@@ -230,10 +224,10 @@ site three [=
             var [= canvas_camera; =];
         |]  
         
-        assign_global_vars(scene s) [|
+        assign_global_vars [|
             [= canvas_renderer; =] = this_renderer;
             [= canvas_scene; =] = [= this_scene.name; =];
-            [= canvas_camera; =] = [= this_camera.name; =];
+            [= canvas_camera; =] = [= this_scene.cam.name; =];
 
         |]
 
@@ -308,6 +302,9 @@ site three [=
 
 
         js_function animate [=
+        
+            args[] = [ "timestamp" ]
+            
             body [|
                 requestAnimationFrame(animate);
                 [= canvas_scene; =].next_frame();

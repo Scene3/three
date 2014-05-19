@@ -116,12 +116,15 @@ site three [=
 
     /** an object representing a javascript function **/
     dynamic script_object js_function [=
-
+      
+        parameters[] = []
+      
         body [?]
 
         /-- declare the function --/
         declare [|
-            function [= name; =]() {
+            [= debug_log("declaring function " + name + " with " + parameters.count + " parameters"); =]
+            function [= name; =]([= item_list(parameters); =]) {
             [= body; =]
             }
         |]
@@ -130,7 +133,28 @@ site three [=
         [| [= name; =](); |]
     =]
 
+arg_test_args[] = [ "A", "B" ]
+arg_test [=
+    item_list(arg_test_args);
+=]
 
+    dynamic item_list(items[]) [=
+        int num_items = items.count
+        num_items;
+        items[num_items - 1];
+    
+        if (num_items > 0) [=
+            for int i from 0 to (num_items - 1) [=
+                items[i];
+                ", ";
+            =]
+           
+            debug_log("   ----> " + num_items + " args");  
+            debug_log("   ----> arg 0 is " + items[0]);  
+            debug_log("   ----> last arg is " + items[num_items - 1]);  
+            items[num_items - 1];
+        =]
+    =]
          
     /----------- three.js-compatible object model ----------/
 
@@ -152,7 +176,7 @@ site three [=
     
 
     dynamic three_color(c) [=
-        int color = c
+        keep: int color = c
         
         [| new THREE.Color([= color; =]); |]
     =]
@@ -326,9 +350,10 @@ site three [=
             =]
         =]
 
-        three_object objs[] = scene_objs
-        camera cam = scene_cam ? scene_cam : default_scene_cam
-        aspect_ratio = ((width && height) ? (width + "/" + height) : "1");
+        keep: three_object objs[] = scene_objs
+        keep: camera cam = scene_cam ? scene_cam : default_scene_cam
+        keep: aspect_ratio = ((width && height) ? (width + "/" + height) : "1");
+        
         scripts[] = []
 
         with (width) [=
@@ -366,6 +391,7 @@ site three [=
     
     dynamic perspective_camera default_scene_cam [=
         position pos = position(0, 2, 25)
+        name = "default_camera"
 
         super;
         far(2000);    /--- 1.5 * backdrop.horizon); ---/
@@ -503,7 +529,7 @@ site three [=
             ]
             
             next_frame [=
-                blue_cube.rotate(0.02, -0.02, -0.01);
+                blue_cube.rotate(0.002, -0.002, -0.001);
             =]
         =]
       
