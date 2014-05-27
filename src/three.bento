@@ -133,14 +133,8 @@ site three [=
         [| [= name; =](); |]
     =]
 
-arg_test_args[] = [ "A", "B" ]
-arg_test [=
-    item_list(arg_test_args);
-=]
-
     dynamic item_list(items[]) [=
         int num_items = items.count
-        num_items;
         items[num_items - 1];
     
         if (num_items > 0) [=
@@ -148,10 +142,6 @@ arg_test [=
                 items[i];
                 ", ";
             =]
-           
-            debug_log("   ----> " + num_items + " args");  
-            debug_log("   ----> arg 0 is " + items[0]);  
-            debug_log("   ----> last arg is " + items[num_items - 1]);  
             items[num_items - 1];
         =]
     =]

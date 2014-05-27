@@ -224,10 +224,11 @@ site three [=
             var [= canvas_camera; =];
         |]  
         
+        camera this_cam = this_scene.cam
         assign_global_vars [|
             [= canvas_renderer; =] = this_renderer;
             [= canvas_scene; =] = [= this_scene.name; =];
-            [= canvas_camera; =] = [= this_scene.cam.name; =];
+            [= canvas_camera; =] = [= this_cam.name; =];
 
         |]
 

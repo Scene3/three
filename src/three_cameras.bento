@@ -14,7 +14,9 @@ site three [=
     
     three_object camera [=
         three_class = "Camera"
-        position pos = position(0, 0, 0)
+        
+        keep: name = owner.type
+        keep: position pos = position(0, 0, 0)
     =]
     
     dynamic camera perspective_camera [=
