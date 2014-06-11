@@ -335,6 +335,9 @@ site three [=
             function resizeCanvas() {
                 recalcCanvasSize();
                 [= canvas_renderer; =].setSize(canvasWidth, canvasHeight);
+                [= canvas_camera; =].aspect = canvasWidth / canvasHeight;
+                [= canvas_camera; =].updateProjectionMatrix();
+                
             }
         
             function recalcCanvasSize() { 
