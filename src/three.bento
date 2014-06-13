@@ -112,6 +112,8 @@ site three [=
         =]
         
         debug_log("instantiating object " + name);
+        
+        sub;
     =]
 
     /** an object representing a javascript function **/
@@ -238,8 +240,7 @@ site three [=
             |]            
         =]         
 
-        super;
-        
+
         /-- declare the object and call its constructor --/
         if (decl) [=
             decl;
@@ -248,14 +249,15 @@ site three [=
             var [= name; =] = [= construct; =];
         |]
         
+        set_attributes;
+        
+        sub;
+
         with (next_frame) [|
             [= name; =].next_frame = function () {
                 [= next_frame; =]
             }
-            
         |]
-        
-        set_attributes;
     =]
 
 
@@ -269,12 +271,12 @@ site three [=
         debug_log("composite object " + name + " has " + objs.count + " objs"); 
         debug_log("  ..objs[0]: " + objs[0].name + "   class: " + objs[0].three_class);
         
-        super;
-        
         for three_object o in objs [=
             o;
             add(o);
         =]
+
+        sub;
     =]
 
 
@@ -303,8 +305,8 @@ site three [=
             [| .setSize([= width; =], [= height; =]); |]
         =]
 
-        super;
         set_size(width, height);
+        sub;
     =]
 
 
@@ -357,17 +359,10 @@ site three [=
             debug_log("    ..." + o);
         =] 
 
-
-
         eval(aspect_ratio);
 
-        /-- instantiate this scene --/
-        js_comment("instantiating scene " + name);        
-
-        super;
-
         /-- instantiate and add camera --/
-        js_comment("instantiating camera");
+        js_comment_log("instantiate camera");
 
         cam;
         if (width && height) [=
@@ -383,12 +378,12 @@ site three [=
         position pos = position(0, 2, 25)
         name = "default_camera"
 
-        super;
         far(2000);    /--- 1.5 * backdrop.horizon); ---/
         debug_log("default_scene_cam name: " + name);
         [|
             [= name; =].target = new THREE.Vector3( 0, 2, 0 );
         |]
+        sub;
     =]
 
 
@@ -422,40 +417,12 @@ site three [=
     
     dynamic three_object mesh(geometry g, material m) [=
         three_class = "Mesh"
-        args[] = [ g.construct, m.construct ]
+        geometry geo = g
+        material mat = m
+        args[] = [ geo.construct, mat.construct ]
     =]
 
     
-    dynamic synthetic_object backdrop [=
-        geometry geo = sphere_geometry(horizon, seg_width, seg_height)
-        material m = basic_material
-        name = owner.type
-        
-        /-- default distance to horizon -- one kilometer  --/
-        int horizon = 1000
-        int seg_width = 100
-        int seg_height = 100
-        
-        decl [|
-            var [= name; =] = new THREE.Mesh( [= geo.construct; =], [= m.construct; =] ); 
-            [= name; =].scale.x = -1;
-        |]
-    =]
-
-        /-- composite objects --/
-        
-    three_object ambience [=
-        light lt [?]
-        backdrop bd [/]
-        
-        three_object[] objs = [ with (lt) [= lt =], if (bd) [= bd =] ]
-
-        super;
-        debug_log("   ...backdrop: " + (bd ? bd : "null"));
-       
-
-    =]
-
  
     /---- info/sample page ----/
   
@@ -566,6 +533,16 @@ site three [=
         comment;
         " *"; "/"; newline;
     =]
+
+    /** Convenience function to add a comment to the javascript source and log
+     *  the comment at the same time.
+     **/
+
+    dynamic js_comment_log(comment) [=
+        js_comment(comment);
+        info_log("Generating code: " + comment);
+    =]
+
 
     /** Construct a javascript argument list from an array. **/
     

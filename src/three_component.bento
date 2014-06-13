@@ -117,11 +117,11 @@ site three [=
         /-------- the renderer ---------/
 
         webgl_renderer(*) this_renderer(cname, width, height) [=
-            super;            
             canvas_container;
             [| .appendChild( |]
             name;
             [| .domElement); |]
+            sub;
         =]
 
 
@@ -157,8 +157,8 @@ site three [=
             create_canvas;
 
             /-- declare top-level functions and variables --/
-            debug_log("declaring script variables");
-            declare;
+            js_comment_log("declare global variables");
+            declare_global_vars;
 
             if (run_scripts_on_load) [=
                 [| function [= default_handler_name("onload"); =]() { |]
@@ -177,21 +177,24 @@ site three [=
                 |]
 
                 /-- construct the scene --/
-                debug_log("constructing scene");
+                js_comment_log("construct the scene");
                 this_scene;
 
-                debug_log("assigning global variables");
+                js_comment_log("assign global variables");
                 assign_global_vars;
                 
-                debug_log("add scene/subclass scripts");
 
                 /-- let the scene add to the script --/
                 if (this_scene.scripts) [=
+                    js_comment_log("add scene scripts");
                     this_scene.scripts;
                 =]
 
                 /-- add script defined by subclass, if any --/
-                sub_script;
+                if (sub_script) [=
+                    js_comment_log("add subclass script");
+                    sub_script;
+                =]
 
                 /-- drop into the rendering loop, from whence we will not return --/
                 info_log("begin rendering loop");
@@ -208,6 +211,9 @@ site three [=
                 [| } |]
                 set_handler("onload");
             =]
+            
+            js_comment_log("declare global functions");
+            declare_funcs;
 
             [| </script> |]    
         =]
@@ -281,8 +287,7 @@ site three [=
         
                       
         /** Declare functions. **/
-        declare [=
-            declare_global_vars;
+        declare_funcs [=
             declare_utils;
             render.declare;
             post_render.declare;                
@@ -290,7 +295,6 @@ site three [=
 
             /-- let the subclass declare functions --/
             sub_funcs;
-
         =]
         
         
