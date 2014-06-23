@@ -31,6 +31,17 @@ site three [=
 
     =]                          
 
+    geometry box_geometry(int width, int height, int depth),
+                         (int width, int height, int depth, int seg_width, int seg_height, int seg_depth) [=
+                          
+        three_class = "BoxGeometry"
+
+        args[] = [ width, height, depth,
+                   with (seg_width) [= seg_width, seg_height, seg_depth =]
+                 ]  
+
+    =]                          
+
     geometry sphere_geometry(int radius),
                             (int radius, int seg_width, int seg_height),
                             (int radius, int seg_width, int seg_height, float phi_start, float phi_length, float theta_start, float theta_length) [=
@@ -42,4 +53,11 @@ site three [=
                    with (phi_start) [= phi_start, phi_length, theta_start, theta_length =]
                  ]  
     =]
+    
+    geometry text_geometry(text) [=
+    
+    
+    =]
+    
+        
 =]

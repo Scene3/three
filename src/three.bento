@@ -177,7 +177,7 @@ site three [=
      *  correspond directly or indirectly to three.js objects.  Objects
      *  with direct analogs among three.js objects generally have the same 
      *  name as their three.js doppelgangers.
-     */
+     **/
 
     dynamic script_object three_object [=
         decl [/]
@@ -277,6 +277,17 @@ site three [=
         =]
 
         sub;
+    =]
+
+    /** An object_group is a simple composite object in which all three_object
+     *  children are added automatically to the objs array.
+     **/
+    composite_object object_group [=
+        three_object objs[] = [
+            for three_object obj in owner.children_of_type("three_object") [= 
+                obj.instantiate
+            =]
+        ]
     =]
 
 
@@ -453,36 +464,17 @@ site three [=
                 undecorated color = 0x3333CC
             =]
             
-            mesh(cube_geometry(10, 10, 10), blue_material) blue_cube [=
+            mesh(cube_geometry(7, 7, 7), blue_material) blue_cube [=
                 position pos = position(0, 2, 0)
             =]
-            point_light(0xFFFF33) bright_yellow_light [=
-                position pos = position(0, 50, 0)
-            =]
-            
-            point_light(0xFF0000) bright_red_light [=
-                position pos = position(-30, 13, 20)
-            =]
 
-            point_light(0x00FF00) bright_green_light [=
-                position pos = position(30, 13, 20)
-            =]
-
-            point_light(0x5555FF) bright_blue_light [=
-                position pos = position(0, -50, 0)
-            =]
-
-            point_light(0xAAAAAA) soft_white_light [=
-                position pos = position(0, 2, 40)
+            point_light(0xAAAAAA) soft_light [=
+                position pos = position(0, 12, 40)
             =]
 
             three_object[] objs = [
                 blue_cube,
-                bright_yellow_light,
-                bright_red_light,
-                bright_green_light,
-                bright_blue_light,
-                soft_white_light
+                soft_light
             ]
             
             next_frame [=
