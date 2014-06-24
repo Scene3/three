@@ -285,7 +285,7 @@ site three [=
     composite_object object_group [=
         three_object objs[] = [
             for three_object obj in owner.children_of_type("three_object") [= 
-                obj.instantiate
+                obj
             =]
         ]
     =]
