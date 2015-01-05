@@ -3,7 +3,7 @@
  --
  -- Bento support for three.js
  --
- -- Copyright (c) 2013 by Michael St. Hippolyte
+ -- Copyright (c) 2013-2015 by Michael St. Hippolyte
  --
  --/
  
@@ -74,10 +74,10 @@ site three [=
          *  scheme.    
          **/
 
-        name = owner.type
+        dynamic name = owner.type
 
         /** To generate basic scripting operations in a general way, we define
-         *  "property" and "method", which translate Bento instantiations into 
+         *  "field" and "method", which translate Bento instantiations into 
          *  either property assignments or method calls.  A base class, "member",
          *  handles the common statement prologue.
          **/  
@@ -224,7 +224,6 @@ site three [=
 
             if (args) [=
                 arg_list(args);
-                debug_log("    ...arg_list: " + arg_list(args));  
 
             =] else if (options) [= 
                 decorate(options);
@@ -291,7 +290,9 @@ site three [=
     =]
 
 
-    /** synthetic objects, which do not have a direct three.js corollary **/    
+    /** base class for synthetic objects, which do not have a direct three.js 
+     *  corollary
+     **/    
 
     three_object synthetic_object [=
         three_class = owner.type
@@ -380,6 +381,7 @@ site three [=
             cam.aspect(aspect_ratio);
             cam.update_projection_matrix;
         =]
+        js_comment_log("add camera");
         add(cam);
     =]
     
@@ -538,12 +540,11 @@ site three [=
 
     /** Construct a javascript argument list from an array. **/
     
-    dynamic arg_list(args[]) [=
-        if (args) [=
-            for int i from 0 to args.count [=
-                debug_log("  i: " + i + "  args[i]: " + args[i]);
+    dynamic arg_list(arguments[]) [=
+        if (arguments) [=
+            for int i from 0 to arguments.count [=
                 if (i > 0) [| , |]
-                args[i];
+                arguments[i];
             =] 
         =]
     =]
