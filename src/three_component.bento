@@ -218,6 +218,8 @@ site three [=
                     sub_script;
                 =]
 
+                [| updateCamera(); |]
+
                 /-- drop into the rendering loop, from whence we will not return --/
                 info_log("begin rendering loop");
                 run;
@@ -362,9 +364,12 @@ site three [=
             function resizeCanvas() {
                 recalcCanvasSize();
                 [= canvas_renderer; =].setSize(canvasWidth, canvasHeight);
+                updateCamera();
+            }
+            
+            function updateCamera() {
                 [= canvas_camera; =].aspect = canvasWidth / canvasHeight;
                 [= canvas_camera; =].updateProjectionMatrix();
-                
             }
         
             function recalcCanvasSize() { 

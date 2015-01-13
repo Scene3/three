@@ -45,7 +45,7 @@ site three [=
         three_class = "MeshBasicMaterial"
         
         undecorated color [?]
-        map [?]
+        undecorated map [?]
         light_map [?]
         env_map [?]
         combine [?]
@@ -60,13 +60,9 @@ site three [=
         boolean vertex_colors [?]
         boolean skinning [?]
         boolean morph_targets [?]
-        
-        undecorated texture_map(x) [=
-            x;
-        =]
     
         options{} = { with (color)            [= "color": color =],
-                      if   (map)              [= "map": texture_map(map) =],
+                      if   (map)              [= "map": map =],
                       if   (light_map)        [= "lightMap": light_map =],
                       if   (env_map)          [= "envMap": env_map =],
                       with (combine)          [= "combine": combine =],
@@ -91,4 +87,12 @@ site three [=
     basic_material phong_material [=
         three_class = "MeshPhongMaterial"
     =]
+    
+    /---- textures ----/
+
+    undecorated load_texture(image_path) [=
+        [| THREE.ImageUtils.loadTexture("[= image_path; =]") |]
+    =]
+
+    
 =]

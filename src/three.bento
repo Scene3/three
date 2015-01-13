@@ -206,6 +206,12 @@ site three [=
             name; [| .rotation.y += [= y; =]; |]
             name; [| .rotation.z += [= z; =]; |]
         =]
+        
+        dynamic set_rotation(float x, float y, float z) [=
+            name; [| .rotation.x = [= x; =]; |]
+            name; [| .rotation.y = [= y; =]; |]
+            name; [| .rotation.z = [= z; =]; |]
+        =]
 
         dynamic field(pos) set_position [=
             name = "position"
