@@ -137,7 +137,6 @@ site three [=
 
     dynamic item_list(items[]) [=
         int num_items = items.count
-        items[num_items - 1];
     
         if (num_items > 0) [=
             for int i from 0 to (num_items - 1) [=
