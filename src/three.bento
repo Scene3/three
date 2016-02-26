@@ -260,7 +260,7 @@ site three [=
         with (next_frame) [|
             [= name; =].next_frame = function () {
                 [= next_frame; =]
-            }
+            };
         |]
     =]
 
