@@ -19,6 +19,13 @@ site three [=
     static int LOG_ERROR   = 0
 
 
+    /---- convenience ----/
+    
+    static float RADIANS_45_DEG = 0.785398163
+    static float RADIANS_90_DEG = 1.570796327
+    static float RADIANS_180_DEG = 3.141592654
+    
+
     /---- global data ----/
 
     global int logging_level(int level) = level
@@ -157,7 +164,7 @@ site three [=
         double z = zz
 
         debug_log("...instantiating vector3 of type "+ type + " and x,y,z = " + x + "," + y + "," + z);
-        [| new THREE.Vector3([= x; =], [= y; =], [=z; =]); |]
+        [| new THREE.Vector3([= x; =], [= y; =], [=z; =]) |]
 
     =] 
 
@@ -169,7 +176,7 @@ site three [=
     dynamic three_color(c) [=
         keep: int color = c
         
-        [| new THREE.Color([= color; =]); |]
+        [| new THREE.Color([= color; =]) |]
     =]
 
     /** Base class of objects used in scene construction.  These objects
@@ -201,15 +208,36 @@ site three [=
         =]
         
         dynamic rotate(float x, float y, float z) [=
+            newline;
             name; [| .rotation.x += [= x; =]; |]
             name; [| .rotation.y += [= y; =]; |]
             name; [| .rotation.z += [= z; =]; |]
         =]
         
-        dynamic set_rotation(float x, float y, float z) [=
+        dynamic orient(float x, float y, float z) [=
+            newline;
             name; [| .rotation.x = [= x; =]; |]
             name; [| .rotation.y = [= y; =]; |]
             name; [| .rotation.z = [= z; =]; |]
+        =]
+        
+        dynamic rotate_on_axis(vector3 axis, float angle) [=
+            newline;
+            name; [| .rotateOnAxis([= axis; =],[= angle; =]); |]
+        =]
+
+        dynamic move(float x, float y, float z) [=
+            newline;
+            name; [| .position.x += [= x; =]; |]
+            name; [| .position.y += [= y; =]; |]
+            name; [| .position.z += [= z; =]; |]
+        =]
+
+        dynamic locate(float x, float y, float z) [=
+            newline;
+            name; [| .position.x = [= x; =]; |]
+            name; [| .position.y = [= y; =]; |]
+            name; [| .position.z = [= z; =]; |]
         =]
 
         dynamic field(pos) set_position [=
@@ -240,7 +268,7 @@ site three [=
         dynamic set_attributes [=
             debug_log("setting position of " + owner.type + " to " + pos);
             with (pos) [|
-                [= name; =].position = [= pos; =]
+                [= name; =].position = [= pos; =];
             |]            
         =]         
 
@@ -292,6 +320,8 @@ site three [=
                 obj
             =]
         ]
+        
+        sub;
     =]
 
 

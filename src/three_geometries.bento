@@ -20,8 +20,8 @@ site three [=
     
     /---- geometries ----/
     
-    geometry cube_geometry(int width, int height, int depth),
-                          (int width, int height, int depth, int seg_width, int seg_height, int seg_depth) [=
+    geometry cube_geometry(float width, float height, float depth),
+                          (float width, float height, float depth, int seg_width, int seg_height, int seg_depth) [=
                           
         three_class = "CubeGeometry"
 
@@ -31,8 +31,8 @@ site three [=
 
     =]                          
 
-    geometry box_geometry(int width, int height, int depth),
-                         (int width, int height, int depth, int seg_width, int seg_height, int seg_depth) [=
+    geometry box_geometry(float width, float height, float depth),
+                         (float width, float height, float depth, int seg_width, int seg_height, int seg_depth) [=
                           
         three_class = "BoxGeometry"
 
@@ -42,9 +42,9 @@ site three [=
 
     =]                          
 
-    geometry sphere_geometry(int radius),
-                            (int radius, int seg_width, int seg_height),
-                            (int radius, int seg_width, int seg_height, float phi_start, float phi_length, float theta_start, float theta_length) [=
+    geometry sphere_geometry(float radius),
+                            (float radius, int seg_width, int seg_height),
+                            (float radius, int seg_width, int seg_height, float phi_start, float phi_length, float theta_start, float theta_length) [=
                             
         three_class = "SphereGeometry"
                             
