@@ -104,6 +104,20 @@ site three [=
             [| ; |]
         =]
 
+        member immutable_field(x),(x, y),(x, y, z) [=
+            [| .set( |]
+            x;
+            with (y) [=
+                [| , |]
+                y;
+            =]
+            with (z) [=
+                [| , |]
+                z;
+            =]
+            [| ); |]
+        =]
+            
         member method(x),(x, y),(x, y, z) [=
             [| ( |]
             x;
@@ -191,6 +205,7 @@ site three [=
         args[] = []
         options{} = {}
         position pos = position(0, 0, 0)
+        rotation rot = rotation(0, 0, 0)
 
         three_object objs[] = []
         boolean is_composite = (objs.count > 1)
@@ -240,10 +255,13 @@ site three [=
             name; [| .position.z = [= z; =]; |]
         =]
 
-        dynamic field(pos) set_position [=
+        dynamic immutable_field(pos.x, pos.y, pos.z) set_position [=
             name = "position"
         =]
 
+        dynamic immutable_field(rot.x, rot.y, rot.z) set_rotation [=
+            name = "rotation"
+        =]
 
         dynamic construct [=
             debug_log("...constructing " + three_class + "...");
@@ -268,7 +286,7 @@ site three [=
         dynamic set_attributes [=
             debug_log("setting position of " + owner.type + " to " + pos);
             with (pos) [|
-                [= name; =].position = [= pos; =];
+                [= name; =].position.set([= pos.x; =], [= pos.y; =], [= pos.z; =]);
             |]            
         =]         
 
@@ -352,6 +370,8 @@ site three [=
             [| .setSize([= width; =], [= height; =]); |]
         =]
 
+        set_attributes [/]
+                
         set_size(width, height);
         sub;
     =]
