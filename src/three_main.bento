@@ -1,9 +1,10 @@
 /---------------------
- -- three.bento
+ -- three_main.bento
  --
+ -- Main module of three.bento
  -- Bento support for three.js
  --
- -- Copyright (c) 2013-2015 by Michael St. Hippolyte
+ -- Copyright (c) 2013-2016 by Michael St. Hippolyte
  --
  --/
  
