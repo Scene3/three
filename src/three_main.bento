@@ -356,6 +356,32 @@ site three [=
     =]
 
 
+    /------------- controls --------------/
+
+    dom_event(nm) [=
+       name = nm
+       [| '[= name; =]' |]
+    =]
+
+    event_listener(id, dom_event event, event_handler handler, boolean capture) [=
+    
+    
+        [|
+            document.getElementById([= id; =]).addEventListener([= event; =], [= handler.name; =], [= capture; =]);
+        |]            
+    =]
+    
+
+    script_object control(three_component tc) [=
+        event_listener[] e = []
+        
+        
+    
+    
+    =]
+
+
+
     /------------- renderers -------------/
 
     three_object renderer(canvas_name, width, height),
