@@ -362,12 +362,15 @@ site three [=
        name = nm
        [| '[= name; =]' |]
     =]
+    
+    event_handler [=
+        boolean capture = false
+        body [?]
+    =]
 
-    event_listener(id, dom_event event, event_handler handler, boolean capture) [=
-    
-    
+    event_listener(id, dom_event event, event_handler handler) [=
         [|
-            document.getElementById([= id; =]).addEventListener([= event; =], [= handler.name; =], [= capture; =]);
+            document.getElementById([= id; =]).addEventListener([= event; =], function() {[= handler.body; =]}, [= handler.capture; =]);
         |]            
     =]
     
