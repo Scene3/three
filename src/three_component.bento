@@ -129,8 +129,29 @@ site three [=
             |]
         =]            
 
-        dynamic add_controls [=
+
+
+        /------------- controls --------------/
+    
+        dom_event(nm) [=
+           name = nm
+           [| '[= name; =]' |]
+        =]
         
+        event_handler [=
+            boolean capture = false
+            body [?]
+        =]
+    
+        event_listener(dom_event event, event_handler handler) [=
+            [|
+                document.getElementById([= id; =]).addEventListener([= event; =], function() {[= handler.body; =]}, [= handler.capture; =]);
+            |]            
+        =]
+    
+
+
+        dynamic add_controls [=
         
         
         =]

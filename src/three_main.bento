@@ -208,9 +208,34 @@ site three [=
         position pos = position(0, 0, 0)
         rotation rot = rotation(0, 0, 0)
 
-        three_object objs[] = []
+        three_object[] objs = []
         boolean is_composite = (objs.count > 1)
+        
+        /-- optional event handlers --/
 
+        on_point_to [?]
+        on_hover_over [?]
+        on_drag [?]
+        
+        /-- check for defined handlers --/
+
+        boolean is_pointable [= with (on_point_to) [= true; =] else [= false; =] =]
+        boolean is_hoverable [= with (on_hover_over) [= true; =] else [= false; =] =]
+        boolean is_draggable [= with (on_drag) [= true; =] else [= false; =] =]
+
+        three_object[] pointable_objs = [
+                if (is_pointable) [=
+                    owner.def
+                =] else [=
+                    for three_object o in objs [=
+                        for three_object po in o.pointable_objs [=
+                            po.def
+                        =]
+                    =]
+                =]
+            ]
+
+        
         /-- animation logic, called for each frame --/
 
         next_frame [?]
@@ -354,35 +379,6 @@ site three [=
         name [?]
         decl [?]
     =]
-
-
-    /------------- controls --------------/
-
-    dom_event(nm) [=
-       name = nm
-       [| '[= name; =]' |]
-    =]
-    
-    event_handler [=
-        boolean capture = false
-        body [?]
-    =]
-
-    event_listener(id, dom_event event, event_handler handler) [=
-        [|
-            document.getElementById([= id; =]).addEventListener([= event; =], function() {[= handler.body; =]}, [= handler.capture; =]);
-        |]            
-    =]
-    
-
-    script_object control(three_component tc) [=
-        event_listener[] e = []
-        
-        
-    
-    
-    =]
-
 
 
     /------------- renderers -------------/
