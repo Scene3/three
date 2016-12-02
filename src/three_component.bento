@@ -168,11 +168,14 @@ site three [=
         /-------- the renderer ---------/
 
         webgl_renderer(*) this_renderer(cname, width, height) [=
-            canvas_container;
-            [| .appendChild( |]
-            name;
-            [| .domElement); |]
-            sub;
+        
+            this generate [=
+                canvas_container;
+                [| .appendChild( |]
+                name;
+                [| .domElement); |]
+                sub;
+            =]
         =]
 
 
@@ -221,7 +224,7 @@ site three [=
                 [| recalcCanvasSize(); |]
 
                 debug_log("constructing renderer id " + canvas_id + "   width " + canvas_width + "   height " + canvas_height);
-                this_renderer(canvas_id, canvas_width, canvas_height);
+                this_renderer(canvas_id, canvas_width, canvas_height).generate;
 
                 if (size_to_window) [|
                     window.addEventListener("resize", resizeCanvas, false);
@@ -229,7 +232,7 @@ site three [=
 
                 /-- construct the scene --/
                 js_comment_log("construct the scene");
-                this_scene;
+                this_scene.generate;
 
                 js_comment_log("assign global variables");
                 assign_global_vars;
@@ -355,9 +358,9 @@ site three [=
         
         
         /** Run the animation. **/
-        run [=
-            animate;
-        =]
+        run [|
+            animate();
+        |]
 
         /-- top-level javascript functions for this component --/
 
