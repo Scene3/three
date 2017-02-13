@@ -1,0 +1,20 @@
+/---------------------
+ -- three_controls.bento
+ --
+ -- Controls for three.bento
+ --
+ -- Copyright (c) 2017 by Michael St. Hippolyte
+ --
+ --/
+ 
+site three [=
+
+    /---- interaction events ----/
+
+    static MOUSEDOWN = "mousedown"
+    static MOUSEUP = "mouseup"
+    static MOUSEMOVE = "mousemove"
+    
+    
+
+=]

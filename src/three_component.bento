@@ -69,6 +69,8 @@ site three [=
 
         sub_script [/]
         sub_funcs [/]
+        
+        controls canvas_controls [?]
 
         /---- the three_component is the rendering canvas. ----/
         canvas_name = canvas_id
@@ -152,7 +154,11 @@ site three [=
 
 
         dynamic add_controls [=
-        
+            with (canvas_controls) [=
+            
+            
+            
+            =]
         
         =]
 
@@ -348,6 +354,7 @@ site three [=
         /** Declare functions. **/
         declare_funcs [=
             declare_utils;
+            interact.declare;
             render.declare;
             post_render.declare;                
             animate.declare;

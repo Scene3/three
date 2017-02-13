@@ -4,7 +4,7 @@
  -- Main module of three.bento
  -- Bento support for three.js
  --
- -- Copyright (c) 2013-2016 by Michael St. Hippolyte
+ -- Copyright (c) 2013-2017 by Michael St. Hippolyte
  --
  --/
  
@@ -183,7 +183,7 @@ site three [=
         double z = zz
 
         debug_log("...instantiating vector3 of type "+ type + " and x,y,z = " + x + "," + y + "," + z);
-        [| new THREE.Vector3([= x; =], [= y; =], [=z; =]) |]
+        [| new THREE.Vector3([= x; =], [= y; =], [= z; =]) |]
 
     =] 
 
@@ -239,10 +239,37 @@ site three [=
                 =]
             ]
 
-        
-        /-- animation logic, called for each frame --/
+        three_object[] hoverable_objs = [
+                if (is_hoverable) [=
+                    owner.def
+                =] else [=
+                    for three_object o in objs [=
+                        for three_object ho in o.hoverable_objs [=
+                            ho.def
+                        =]
+                    =]
+                =]
+            ]
 
+        three_object[] draggable_objs = [
+                if (is_draggable) [=
+                    owner.def
+                =] else [=
+                    for three_object o in objs [=
+                        for three_object dro in o.draggable_objs [=
+                            dro.def
+                        =]
+                    =]
+                =]
+            ]
+
+        
+        /-- animation logic, called for each frame if defined --/
         next_frame [?]
+
+        /-- interaction logic, called to handle user interaction --/
+        interact [?]
+        
 
         dynamic add(three_object obj) [=
             debug_log("....adding " + obj.name + " to " + name);
@@ -338,6 +365,12 @@ site three [=
                     [= next_frame; =]
                 };
             |]
+
+            with (interact) [|
+                [= name; =].interact = function () {
+                    [= interact; =]
+                };
+            |]
         =]
     =]
 
@@ -425,6 +458,19 @@ site three [=
     =]
     
 
+    /------------- raycaster -------------/
+
+    dynamic raycaster(),
+                     (vector3 origin, vector3 direction),
+                     (vector3 origin, vector3 direction, near, far) [=
+        three_class = "Raycaster"
+    
+        with (near)        [| new THREE.Raycaster([= origin; =], [= direction; =], [= near; =], [= far; =]) |]
+        else with (origin) [| new THREE.Raycaster([= origin; =], [= direction; =]) |]
+        else               [| new THREE.Raycaster() |]
+    =] 
+
+
     /-------------- the scene ------------/
    
     composite_object scene(three_object[] scene_objs, camera scene_cam, width, height),
@@ -441,6 +487,11 @@ site three [=
                      o.next_frame;
                  =]
             =]
+        =]
+        
+        interact [=
+        
+        
         =]
 
         keep: three_object objs[] = scene_objs
