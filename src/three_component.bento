@@ -135,33 +135,18 @@ site three [=
 
         /------------- controls --------------/
     
-        dom_event(nm) [=
-           name = nm
-           [| '[= name; =]' |]
-        =]
-        
-        event_handler [=
-            boolean capture = false
-            body [?]
-        =]
-    
-        event_listener(dom_event event, event_handler handler) [=
-            [|
-                document.getElementById([= id; =]).addEventListener([= event; =], function() {[= handler.body; =]}, [= handler.capture; =]);
-            |]            
-        =]
-    
-
-
         dynamic add_controls [=
             with (canvas_controls) [=
-            
-            
-            
+                canvas_controls.add_listeners(canvas_container);
+                canvas_controls.activate(canvas_camera);
             =]
-        
         =]
 
+        dynamic declare_controls [=
+            with (canvas_controls) [=
+                canvas_controls.declare;
+            =]
+        =]
 
 
         /-------------------------------/
@@ -219,7 +204,8 @@ site three [=
             /-- declare top-level functions and variables --/
             js_comment_log("declare global variables");
             declare_global_vars;
-
+            declare_controls;
+            
             if (run_scripts_on_load) [=
                 [| function [= default_handler_name("onload"); =]() { |]
             =]
@@ -354,7 +340,6 @@ site three [=
         /** Declare functions. **/
         declare_funcs [=
             declare_utils;
-            interact.declare;
             render.declare;
             post_render.declare;                
             animate.declare;
@@ -383,6 +368,10 @@ site three [=
                 post_render();
             |]
         =]
+
+        js_function interact [=
+            body [/]
+        =]
         
         js_function render [=
             body [=
@@ -395,7 +384,6 @@ site three [=
             =]
         =]
 
-        
         js_function post_render [=
             body [/]
         =]

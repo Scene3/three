@@ -149,16 +149,16 @@ site three [=
         body [?]
 
         /-- declare the function --/
-        declare [|
+        declare [/
             [= debug_log("declaring function " + name + " with " + parameters.count + " parameters"); =]
             function [= name; =]([= item_list(parameters); =]) {
             [= body; =]
             }
-        |]
+        /]
 
 
         /-- call the function --/
-        this generate [| [= name; =](); |]
+        this generate [/ [= name; =](); |]
     =]
 
     dynamic item_list(items[]) [=
@@ -183,7 +183,7 @@ site three [=
         double z = zz
 
         debug_log("...instantiating vector3 of type "+ type + " and x,y,z = " + x + "," + y + "," + z);
-        [| new THREE.Vector3([= x; =], [= y; =], [= z; =]) |]
+        [/ new THREE.Vector3([= x; =], [= y; =], [= z; =]) |]
 
     =] 
 
@@ -195,7 +195,7 @@ site three [=
     dynamic three_color(c) [=
         keep: int color = c
         
-        [| new THREE.Color([= color; =]) |]
+        [/ new THREE.Color([= color; =]) |]
     =]
 
     /** Base class of objects used in scene construction.  These objects
@@ -225,7 +225,7 @@ site three [=
 
         boolean is_pointable [= with (on_point_to) [= true; =] else [= false; =] =]
         boolean is_hoverable [= with (on_hover_over) [= true; =] else [= false; =] =]
-        boolean is_draggable [= with (on_drag) [= true; =] else [= false; =] =]
+        boolean is_draggable [= with (on_drag) [= log("~~~~~ draggable: " + three_class); true; =] else [= log("~~~~~ not draggable: " + three_class); false; =] =]
 
         three_object[] pointable_objs = [
                 if (is_pointable) [=
@@ -326,7 +326,7 @@ site three [=
             debug_log("    ...options: " + (string) options);  
             debug_log("    ...decorated options: " + decorate(options));  
 
-            [| new THREE. |]
+            [/ new THREE. |]
             three_class;
             [| ( |]
 
@@ -342,7 +342,7 @@ site three [=
 
         dynamic set_attributes [=
             debug_log("setting position of " + owner.type + " to " + pos);
-            with (pos) [|
+            with (pos) [/
                 [= name; =].position.set([= pos.x; =], [= pos.y; =], [= pos.z; =]);
             |]            
         =]         
@@ -352,7 +352,7 @@ site three [=
             if (decl) [=
                 decl;
                 
-            =] else if (three_class) [| 
+            =] else if (three_class) [/ 
                 var [= name; =] = [= construct; =];
             |]
             
@@ -360,13 +360,13 @@ site three [=
             
             sub;
     
-            with (next_frame) [|
+            with (next_frame) [/
                 [= name; =].next_frame = function () {
                     [= next_frame; =]
                 };
             |]
 
-            with (interact) [|
+            with (interact) [/
                 [= name; =].interact = function () {
                     [= interact; =]
                 };
@@ -610,6 +610,7 @@ site three [=
             
             mesh(cube_geometry(7, 7, 7), blue_material) blue_cube [=
                 position pos = position(0, 2, 0)
+                on_drag [/]
             =]
 
             point_light(0xAAAAAA) soft_light [=
@@ -638,6 +639,8 @@ site three [=
                    |]
 
             canvas_id = "tc"
+
+            controls canvas_controls = drag_controls(canvas_container, s)
         =]        
 
         [|
@@ -742,5 +745,5 @@ site three [=
             log(str);
         =]
     =]
-   
+
 =]
