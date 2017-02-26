@@ -223,13 +223,13 @@ site three [=
         
         /-- check for defined handlers --/
 
-        boolean is_pointable [= with (on_point_to) [= true; =] else [= false; =] =]
-        boolean is_hoverable [= with (on_hover_over) [= true; =] else [= false; =] =]
-        boolean is_draggable [= with (on_drag) [= log("~~~~~ draggable: " + three_class); true; =] else [= log("~~~~~ not draggable: " + three_class); false; =] =]
+        dynamic boolean is_pointable [= with (on_point_to) [= true; =] else [= false; =] =]
+        dynamic boolean is_hoverable [= with (on_hover_over) [= true; =] else [= false; =] =]
+        dynamic boolean is_draggable [= with (on_drag) [= log("~~~~~ draggable: " + three_class); true; =] else [= log("~~~~~ not draggable: " + three_class); false; =] =]
 
         three_object[] pointable_objs = [
-                if (is_pointable) [=
-                    owner.def
+                if (owner.owner.is_pointable) [=
+                    owner.owner.def
                 =] else [=
                     for three_object o in objs [=
                         for three_object po in o.pointable_objs [=
@@ -240,8 +240,8 @@ site three [=
             ]
 
         three_object[] hoverable_objs = [
-                if (is_hoverable) [=
-                    owner.def
+                if (owner.owner.is_hoverable) [=
+                    owner.owner.def
                 =] else [=
                     for three_object o in objs [=
                         for three_object ho in o.hoverable_objs [=
@@ -252,8 +252,8 @@ site three [=
             ]
 
         three_object[] draggable_objs = [
-                if (is_draggable) [=
-                    owner.def
+                if (owner.owner.is_draggable) [=
+                    owner.owner.def
                 =] else [=
                     for three_object o in objs [=
                         for three_object dro in o.draggable_objs [=
@@ -610,7 +610,9 @@ site three [=
             
             mesh(cube_geometry(7, 7, 7), blue_material) blue_cube [=
                 position pos = position(0, 2, 0)
-                on_drag [/]
+                on_drag [=
+                    log("blue_cube.on_drag called");
+                =]
             =]
 
             point_light(0xAAAAAA) soft_light [=
@@ -659,6 +661,9 @@ site three [=
         tc(sample_scene);
     =]
     
+    dobjs [= 
+        three_info.sample_scene.draggable_objs;
+    =]
 
 
     /----------- javascript generation utilities -----------/

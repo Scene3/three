@@ -285,7 +285,7 @@ site three [=
         assign_global_vars [|
             [= canvas_renderer; =] = this_renderer;
             [= canvas_scene; =] = [= this_scene.name; =];
-            [= canvas_camera; =] = [= this_cam.name; =];
+            [= canvas_camera; =] = [= this_scene.cam.name; =];
 
         |]
 
