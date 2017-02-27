@@ -137,8 +137,8 @@ site three [=
     
         dynamic add_controls [=
             with (canvas_controls) [=
-                canvas_controls.add_listeners(canvas_container);
                 canvas_controls.activate(canvas_camera);
+                canvas_controls.add_listeners(canvas_id);
             =]
         =]
 

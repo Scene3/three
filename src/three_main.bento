@@ -642,7 +642,7 @@ site three [=
 
             canvas_id = "tc"
 
-            controls canvas_controls = drag_controls(canvas_container, s)
+            controls canvas_controls = drag_controls(canvas_id, s)
         =]        
 
         [|

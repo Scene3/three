@@ -177,8 +177,8 @@ site three [=
     
         dynamic add_controls [=
             with (canvas_controls) [=
-                canvas_controls.add_listeners(canvas_container);
                 canvas_controls.activate(canvas_camera);
+                canvas_controls.add_listeners(canvas_id);
             =]
         =]
 
@@ -499,9 +499,13 @@ site three [=
     =]
     
     dynamic event_listener(element, dom_event event, event_handler handler) [=
-        [|
-            [= element; =].addEventListener([= event; =], [= handler.name; =], [= handler.capture; =]);
+        [/
+            [= element; =].on[= event.name; =] = [= handler.name; =];
         |]            
+    
+    /----    [|
+            [= element; =].addEventListener([= event; =], [= handler.name; =], [= handler.capture; =]);
+        |]   ----/            
     =]
 
     /---- interaction events ----/
@@ -548,11 +552,13 @@ site three [=
         boolean xlock = false
         boolean ylock = false
         boolean zlock = false
+        
+        controls_var = id + "_drag_controls"
 
         declare [/
             var drag_controls = function( _camera, _objects ) {
 
-                var _domElement = document.getElementById([= id; =]);
+                var _domElement = document.getElementById("[= id; =]");
 
                 var _raycaster = new THREE.Raycaster();
 
@@ -563,8 +569,6 @@ site three [=
                 var p3subp1 = new THREE.Vector3();
                 var targetposition = new THREE.Vector3();
                 var zerovector = new THREE.Vector3();
-
-                this.enabled = false;
 
                 /* Custom Event Handling */
                 var _listeners = {};
@@ -613,18 +617,20 @@ site three [=
 
                 this.setObjects( _objects );
 
-                [= mousedown.declare; =]
-                [= mouseup.declare; =]
-                [= mousemove.declare; =]
+                this.onmousedown = [= mousedown.declare; =]
+                this.onmouseup =   [= mouseup.declare; =]
+                this.onmousemove = [= mousemove.declare; =]
+                
+                this.enabled = false;
             }
         /]
 
 
 
         event_handler mousedown [=
-           name = "drag_controls.onmousedown"
+           name = controls_var + ".onmousedown"
            declare [/
-               function onmousedown( event ) {
+               function( event ) {
                    event.preventDefault();
                    _mouse.x = ( event.clientX / _domElement.width ) * 2 - 1;
                    _mouse.y = - ( event.clientY / _domElement.height ) * 2 + 1;
@@ -645,9 +651,9 @@ site three [=
         =]
 
         event_handler mouseup [=
-           name = "drag_controls.onmouseup"
+           name = controls_var + ".onmouseup"
            declare [/
-               function onmouseup( event ) {
+               function( event ) {
                    event.preventDefault();
                    if ( _selected ) {
                        notify( 'dragend', _selected );
@@ -659,9 +665,9 @@ site three [=
         =]
 
         event_handler mousemove [=
-           name = "drag_controls.onmousemove"
+           name = controls_var + ".onmousemove"
            declare [/
-               function onmousemove( event ) {
+               function( event ) {
                    event.preventDefault();
                    _mouse.x = ( event.clientX / _domElement.width ) * 2 - 1;
                    _mouse.y = - ( event.clientY / _domElement.height ) * 2 + 1;
@@ -728,8 +734,9 @@ site three [=
         =]
  
         activate(cam_var) [/
-            var [= id; =]_draggable_objs = [= s.draggable_objs; =] 
-            var [= id; =]_drag_controls = new drag_controls([= cam_var; =], [= id; =]_draggable_objs);    
+            var [= id; =]_draggable_objs = [ [= for three_obj o in s.draggable_objs [= o.name; ","; =] =] ]; 
+            var [= controls_var; =] = new drag_controls([= cam_var; =], [= id; =]_draggable_objs);
+            [= controls_var; =].enabled = true;    
         |]
 
         this;
@@ -1445,7 +1452,7 @@ site three [=
 
             canvas_id = "tc"
 
-            controls canvas_controls = drag_controls(canvas_container, s)
+            controls canvas_controls = drag_controls(canvas_id, s)
         =]        
 
         [|
