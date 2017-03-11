@@ -635,7 +635,7 @@ site three [=
                    _mouse.x = ( event.clientX / _domElement.width ) * 2 - 1;
                    _mouse.y = - ( event.clientY / _domElement.height ) * 2 + 1;
                    _raycaster.setFromCamera( _mouse, _camera );
-                   var intersects = _raycaster.intersectObjects( _objects, true );
+                   var intersects = _raycaster.intersectObjects( _objects );
                    var ray = _raycaster.ray;
                    var normal = ray.direction; // normal ray to the camera position
                    if ( intersects.length > 0 ) {
@@ -718,7 +718,7 @@ site three [=
                    }
 
                   _raycaster.setFromCamera( _mouse, _camera );
-                  var intersects = _raycaster.intersectObjects( _objects, true );
+                  var intersects = _raycaster.intersectObjects( _objects );
                   if ( intersects.length > 0 ) {
                       _domElement.style.cursor = 'pointer';
                       _hovered = intersects[ 0 ];
@@ -1154,7 +1154,8 @@ site three [=
             debug_log("setting position of " + owner.type + " to " + pos);
             with (pos) [/
                 [= name; =].position.set([= pos.x; =], [= pos.y; =], [= pos.z; =]);
-            |]            
+            |]
+            sub;            
         =]         
 
         this generate [=
@@ -1192,6 +1193,27 @@ site three [=
 
         three_object objs[] = []
         
+        this set_attributes [=
+        
+            name; 
+            
+            [| .raycast = function(raycaster, intersects) {
+                    var childIntersects = [];
+                    var children = this.children;
+                    for ( var i = 0, len = children.length; i < len; i++ ) {
+                       children[i].raycast(raycaster, childIntersects);
+                       if (childIntersects.length > 0) {
+                           var intersection = childIntersects[0];
+                           intersection.object = this;
+                           intersects.push(intersection);
+                           return;
+                       }
+                    }          
+                };
+            |]
+        
+            sub;
+        =]
         
         this generate [=
             debug_log("composite object " + name + " has " + objs.count + " objs"); 
