@@ -24,12 +24,8 @@ site three [=
     
     dynamic event_listener(element, dom_event event, event_handler handler) [=
         [/
-            [= element; =].on[= event.name; =] = [= handler.name; =];
-        |]            
-    
-    /----    [|
             [= element; =].addEventListener([= event; =], [= handler.name; =], [= handler.capture; =]);
-        |]   ----/            
+        |]            
     =]
 
     /---- interaction events ----/
@@ -40,6 +36,7 @@ site three [=
 
 
     controls [=
+        boolean enabled_by_default = true;
     
         declare [?]
         
@@ -60,8 +57,10 @@ site three [=
         
         =]
         
-        activate(cam_var) [/]
+        dynamic attach(cam_var) [/]
+        dynamic activate(boolean flag) [/]
     
+        this;
     =]    
 
     /**
@@ -72,10 +71,10 @@ site three [=
      *
      **/
     
-    controls drag_controls(id, scene s) [=
-        boolean xlock = false
-        boolean ylock = false
-        boolean zlock = false
+    controls drag_controls(id, three_object obj) [=
+        boolean x_lock = false
+        boolean y_lock = false
+        boolean z_lock = false
         
         controls_var = id + "_drag_controls"
 
@@ -97,7 +96,7 @@ site three [=
                 /* Custom Event Handling */
                 var _listeners = {};
 
-                var me = this;
+                var _this = this;
                 this.on = function( event, handler ) {
                     if ( ! _listeners[ event ] ) {
                         _listeners[ event ] = [];
@@ -109,13 +108,13 @@ site three [=
                 this.off = function( event, handler ) {
                     var l = _listeners[ event ];
                     if ( !l ) {
-                        return me;
+                        return _this;
                     }
                     if ( l.indexOf( handler ) > - 1 ) {
                         l.splice( handler, 1 );
                     }
 
-                    return me;
+                    return _this;
                 };
 
                 var notify = function( event, data, member ) {
@@ -145,7 +144,7 @@ site three [=
                 this.onmouseup =   [= mouseup.declare; =]
                 this.onmousemove = [= mousemove.declare; =]
                 
-                this.enabled = false;
+                this.enabled = [= enabled_by_default; =];
             }
         /]
 
@@ -155,9 +154,13 @@ site three [=
            name = controls_var + ".onmousedown"
            declare [/
                function( event ) {
+                   if ( _this.enabled === false ) {
+                       return;
+                   }
+                  
                    event.preventDefault();
-                   _mouse.x = ( event.clientX / _domElement.width ) * 2 - 1;
-                   _mouse.y = - ( event.clientY / _domElement.height ) * 2 + 1;
+                   _mouse.x = ( event.offsetX / _domElement.width ) * 2 - 1;
+                   _mouse.y = - ( event.offsetY / _domElement.height ) * 2 + 1;
                    _raycaster.setFromCamera( _mouse, _camera );
                    var intersects = _raycaster.intersectObjects( _objects );
                    var ray = _raycaster.ray;
@@ -192,13 +195,17 @@ site three [=
            name = controls_var + ".onmousemove"
            declare [/
                function( event ) {
+                   if ( _this.enabled === false ) {
+                       return;
+                   }
+
                    event.preventDefault();
-                   _mouse.x = ( event.clientX / _domElement.width ) * 2 - 1;
-                   _mouse.y = - ( event.clientY / _domElement.height ) * 2 + 1;
+                   _mouse.x = ( event.offsetX / _domElement.width ) * 2 - 1;
+                   _mouse.y = - ( event.offsetY / _domElement.height ) * 2 + 1;
                    _raycaster.setFromCamera( _mouse, _camera );
 
                    var ray = _raycaster.ray;
-                   if ( _selected && me.enabled ) {
+                   if ( _selected ) {
                        var normal = _selected.normal;
                        var denom = normal.dot( ray.direction );
                        if ( denom == 0 ) {
@@ -211,31 +218,17 @@ site three [=
 
                        targetposition.copy( ray.direction ).multiplyScalar( u ).add( ray.origin ).sub( _offset );
 
-                       var xLock = [= xlock; =];
-                       var yLock = [= ylock; =];
-                       var zLock = [= zlock; =];
-                       var moveX, moveY, moveZ;
-                       if ( xLock ) {
-                           moveX = true;
-                           moveY = false;
-                           moveZ = false;
-                       } else if ( yLock ) {
-                           moveX = false;
-                           moveY = true;
-                           moveZ = false;
-                       } else {
-                           moveX = moveY = moveZ = true;
-                       }
-
-                       if ( moveX ) {
-                           _selected.object.position.x = targetposition.x;
-                       }
-                       if ( moveY ) {
-                           _selected.object.position.y = targetposition.y;
-                       }
-                       if ( moveZ ) {
-                           _selected.object.position.z = targetposition.z;
-                       }
+                       [=
+                           if (!x_lock) [/
+                               _selected.object.position.x = targetposition.x;
+                           |]
+                           if (!y_lock) [/
+                               _selected.object.position.y = targetposition.y;
+                           |]
+                           if (!z_lock) [/
+                              _selected.object.position.z = targetposition.z;
+                           |]
+                       =]
 
                        notify( 'drag', _selected );
                        return;
@@ -257,10 +250,13 @@ site three [=
            |]
         =]
  
-        activate(cam_var) [/
-            var [= id; =]_draggable_objs = [ [= for three_obj o in s.draggable_objs [= o.name; ","; =] =] ]; 
+        attach(cam_var) [/
+            var [= id; =]_draggable_objs = [ [= for three_obj o in obj.draggable_objs [= o.name; ","; =] =] ]; 
             var [= controls_var; =] = new drag_controls([= cam_var; =], [= id; =]_draggable_objs);
-            [= controls_var; =].enabled = true;    
+        |]
+        
+        activate(boolean flag) [/
+            [= controls_var; =].enabled = [= flag; =];    
         |]
 
         this;
