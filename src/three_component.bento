@@ -70,7 +70,7 @@ site three [=
         sub_script [/]
         sub_funcs [/]
         
-        controls canvas_controls [?]
+        controls[] canvas_controls = []
 
         /---- the three_component is the rendering canvas. ----/
         canvas_name = canvas_id
@@ -136,21 +136,33 @@ site three [=
         /------------- controls --------------/
     
         dynamic add_controls [=
-            with (canvas_controls) [=
-                canvas_controls.attach(canvas_camera);
-                canvas_controls.add_listeners(canvas_id);
+            for controls c in canvas_controls [=
+                c.attach(canvas_camera);
+                c.add_listeners(canvas_id);
             =]
         =]
 
-        dynamic activate_controls(boolean flag) [=
-            with (canvas_controls) [=
-                canvas_controls.activate(flag);
+        dynamic activate_controls(boolean flag),
+                                 (controls_type, boolean flag) [=
+                                 
+            with (controls_type) [=
+                for controls c in canvas_controls [=
+                    if (c.def.is_a(controls_type)) [=
+                        c.activate(flag);
+                        log(controls.type + " activated");
+                    =]
+                =]
+
+            =] else [=
+                for controls c in canvas_controls [=
+                    c.activate(flag);
+                =]
             =]
         =]
 
         dynamic declare_controls [=
-            with (canvas_controls) [=
-                canvas_controls.declare;
+            for controls c in canvas_controls [=
+                c.declare;
             =]
         =]
 

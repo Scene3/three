@@ -668,7 +668,7 @@ site three [=
                 boolean z_lock = true
             =]
 
-            controls canvas_controls = my_drag_controls(canvas_id, s)
+            controls[] canvas_controls = [ my_drag_controls(canvas_id, s) ]
         =]        
 
         [|

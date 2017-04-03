@@ -70,11 +70,16 @@ site three [=
      **/
      
     controls point_controls(id, three_object obj) [=
+        controls_var = id + "_point_controls"
+
         declare [/
             var point_controls = function( _camera, _objects ) {
                 var _domElement = document.getElementById("[= id; =]");
                 var _raycaster = new THREE.Raycaster();
+                var _mouse = new THREE.Vector3(),
+                    _offset = new THREE.Vector3();
                 var _selected, _hovered;
+                var _this = this;
 
                 this.setObjects = function( objects ) {
                     if ( objects instanceof THREE.Scene ) {
@@ -86,13 +91,13 @@ site three [=
 
                 this.setObjects( _objects );
 
-                this.onmousedown = [= mousedown.declare; =]
-                this.onmouseup =   [= mouseup.declare; =]
-                this.onmousemove = [= mousemove.declare; =]
+                this.onmousedown = [= mousedown.declare; =];
+                this.onmouseup =   [= mouseup.declare; =];
+                this.onmousemove = [= mousemove.declare; =];
 
                 this.enabled = [= enabled_by_default; =];
             }
-        |]
+        /]
     
         event_handler mousedown [=
            name = controls_var + ".onmousedown"
@@ -242,9 +247,9 @@ site three [=
 
                 this.setObjects( _objects );
 
-                this.onmousedown = [= mousedown.declare; =]
-                this.onmouseup =   [= mouseup.declare; =]
-                this.onmousemove = [= mousemove.declare; =]
+                this.onmousedown = [= mousedown.declare; =];
+                this.onmouseup =   [= mouseup.declare; =];
+                this.onmousemove = [= mousemove.declare; =];
                 
                 this.enabled = [= enabled_by_default; =];
             }
