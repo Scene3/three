@@ -204,11 +204,11 @@ site three [=
 
                 var _this = this;
                 this.on = function( event, handler ) {
-                    if ( ! _listeners[ event ] ) {
+                    if ( !_listeners[ event ] ) {
                         _listeners[ event ] = [];
                     }
                     _listeners[ event ].push( handler );
-                    return me;
+                    return _this;
                 };
 
                 this.off = function( event, handler ) {
@@ -216,7 +216,7 @@ site three [=
                     if ( !l ) {
                         return _this;
                     }
-                    if ( l.indexOf( handler ) > - 1 ) {
+                    if ( l.indexOf( handler ) > -1 ) {
                         l.splice( handler, 1 );
                     }
 
@@ -230,7 +230,7 @@ site three [=
                     }
  
                     if ( !member ) {
-                        for ( var i = 0; i < l.length; i ++ ) {
+                        for ( var i = 0; i < l.length; i++ ) {
                             l[ i ]( data );
                         }
                     }
