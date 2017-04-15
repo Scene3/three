@@ -80,15 +80,9 @@ site three [=
                 var _selected, _hovered;
                 var _this = this;
 
-                this.setObjects = function( objects ) {
-                    if ( objects instanceof THREE.Scene ) {
-                        _objects = objects.children;
-                    } else {
-                        _objects = objects;
-                    }
-                };
-
-                this.setObjects( _objects );
+                if ( _objects instanceof THREE.Scene ) {
+                    _objects = _objects.children;
+                }
 
                 this.onmousedown = [= mousedown.declare; =];
                 this.onmouseup =   [= mouseup.declare; =];
@@ -96,6 +90,8 @@ site three [=
 
                 this.enabled = [= enabled_by_default; =];
             }
+            point_controls.prototype = Object.create( THREE.EventDispatcher.prototype );
+            point_controls.prototype.constructor = point_controls;
         /]
     
         event_handler mousedown [=
@@ -117,6 +113,7 @@ site three [=
                        _selected.ray = ray;
                        _selected.normal = normal ;
                        _offset.copy( _selected.point ).sub( _selected.object.position );
+                       _this.dispatchEvent( { type: 'select', object: _selected } );
                    }
                }
            |]
@@ -150,7 +147,9 @@ site three [=
                    if ( intersects.length > 0 ) {
                        _domElement.style.cursor = 'pointer';
                        _hovered = intersects[ 0 ];
+                       _this.dispatchEvent( { type: 'hoveron', object: _hovered } );
                    } else {
+                       _this.dispatchEvent( { type: 'hoveroff', object: _hovered } );
                        _hovered = null;
                        _domElement.style.cursor = 'auto';
                    }
@@ -199,52 +198,11 @@ site three [=
                 var targetposition = new THREE.Vector3();
                 var zerovector = new THREE.Vector3();
 
-                /* Custom Event Handling */
-                var _listeners = {};
-
                 var _this = this;
-                this.on = function( event, handler ) {
-                    if ( !_listeners[ event ] ) {
-                        _listeners[ event ] = [];
-                    }
-                    _listeners[ event ].push( handler );
-                    return _this;
-                };
 
-                this.off = function( event, handler ) {
-                    var l = _listeners[ event ];
-                    if ( !l ) {
-                        return _this;
-                    }
-                    if ( l.indexOf( handler ) > -1 ) {
-                        l.splice( handler, 1 );
-                    }
-
-                    return _this;
-                };
-
-                var notify = function( event, data, member ) {
-                    var l = _listeners[ event ];
-                    if ( !l ) {
-                        return;
-                    }
- 
-                    if ( !member ) {
-                        for ( var i = 0; i < l.length; i++ ) {
-                            l[ i ]( data );
-                        }
-                    }
-                };
-
-                this.setObjects = function( objects ) {
-                    if ( objects instanceof THREE.Scene ) {
-                        _objects = objects.children;
-                    } else {
-                        _objects = objects;
-                    }
-                };
-
-                this.setObjects( _objects );
+                if ( _objects instanceof THREE.Scene ) {
+                    _objects = _objects.children;
+                }
 
                 this.onmousedown = [= mousedown.declare; =];
                 this.onmouseup =   [= mouseup.declare; =];
@@ -252,6 +210,8 @@ site three [=
                 
                 this.enabled = [= enabled_by_default; =];
             }
+            drag_controls.prototype = Object.create( THREE.EventDispatcher.prototype );
+            drag_controls.prototype.constructor = drag_controls;
         /]
 
 
@@ -276,7 +236,7 @@ site three [=
                        _selected.normal = normal ;
                        _offset.copy( _selected.point ).sub( _selected.object.position );
                        _domElement.style.cursor = 'move';
-                       notify( 'dragstart', _selected );
+                       _this.dispatchEvent( { type: 'dragstart', object: _selected } );
                    }
                }
            |]
@@ -288,7 +248,7 @@ site three [=
                function( event ) {
                    event.preventDefault();
                    if ( _selected ) {
-                       notify( 'dragend', _selected );
+                       _this.dispatchEvent( { type: 'dragend', object: _selected } );
                        _selected = null;
                    }
                    _domElement.style.cursor = 'auto';
@@ -334,7 +294,7 @@ site three [=
                            |]
                        =]
 
-                       notify( 'drag', _selected );
+                       _this.dispatchEvent( { type: 'drag', object: _selected } );
                        return;
                    }
 
@@ -342,9 +302,9 @@ site three [=
                   if ( intersects.length > 0 ) {
                       _domElement.style.cursor = 'pointer';
                       _hovered = intersects[ 0 ];
-                      notify( 'hoveron', _hovered );
+                       _this.dispatchEvent( { type: 'hoveron', object: _hovered } );
                   } else {
-                      notify( 'hoveroff', _hovered );
+                       _this.dispatchEvent( { type: 'hoveroff', object: _hovered } );
                       _hovered = null;
                       _domElement.style.cursor = 'auto';
                   }
