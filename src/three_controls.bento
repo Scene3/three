@@ -73,14 +73,15 @@ site three [=
         controls_var = id + "_point_controls"
 
         declare [/
-            var point_controls = function( _camera, _objects ) {
+            var point_controls = function(_camera, _objects) {
                 var _domElement = document.getElementById("[= id; =]");
                 var _raycaster = new THREE.Raycaster();
                 var _offset = new THREE.Vector3();
-                var _selected, _hovered;
+                var _selected = null;
+                var _hovered = null;
                 var _this = this;
 
-                if ( _objects instanceof THREE.Scene ) {
+                if (_objects instanceof THREE.Scene) {
                     _objects = _objects.children;
                 }
 
@@ -97,22 +98,25 @@ site three [=
         event_handler mousedown [=
            name = controls_var + ".onmousedown"
            declare [/
-               function( event ) {
-                   if ( _this.enabled === false ) {
+               function(event) {
+                   if (_this.enabled === false) {
                        return;
                    }
                   
                    event.preventDefault();
                    var mouse = new THREE.Vector2( (event.offsetX / _domElement.width) * 2 - 1, -(event.offsetY / _domElement.height) * 2 + 1 );
                    _raycaster.setFromCamera( mouse, _camera );
-                   var intersects = _raycaster.intersectObjects( _objects );
+                   var intersects = _raycaster.intersectObjects(_objects);
                    var ray = _raycaster.ray;
                    var normal = ray.direction; // normal ray to the camera position
-                   if ( intersects.length > 0 ) {
-                       _selected = intersects[ 0 ];
+                   if (intersects.length > 0) {
+                       _selected = intersects[0];
                        _selected.ray = ray;
                        _selected.normal = normal ;
                        _offset.copy( _selected.point ).sub( _selected.object.position );
+                       if ("onselect" in _selected) {
+                           _selected.onselect();
+                       }
                        _this.dispatchEvent( { type: 'select', object: _selected } );
                    }
                }
@@ -122,9 +126,9 @@ site three [=
         event_handler mouseup [=
            name = controls_var + ".onmouseup"
            declare [/
-               function( event ) {
+               function(event) {
                    event.preventDefault();
-                   if ( _selected ) {
+                   if (_selected) {
                        _selected = null;
                    }
                    _domElement.style.cursor = 'auto';
@@ -135,8 +139,8 @@ site three [=
         event_handler mousemove [=
            name = controls_var + ".onmousemove"
            declare [/
-               function( event ) {
-                   if ( _this.enabled === false ) {
+               function(event) {
+                   if (_this.enabled === false) {
                        return;
                    }
 
@@ -144,11 +148,17 @@ site three [=
                    var mouse = new THREE.Vector2( (event.offsetX / _domElement.width) * 2 - 1, -(event.offsetY / _domElement.height) * 2 + 1 );
                    _raycaster.setFromCamera( mouse, _camera );
                    var intersects = _raycaster.intersectObjects( _objects );
-                   if ( intersects.length > 0 ) {
+                   if (intersects.length > 0) {
                        _domElement.style.cursor = 'pointer';
-                       _hovered = intersects[ 0 ];
+                       _hovered = intersects[0];
+                       if ("onhoveron" in _hovered) {
+                           _hovered.onhoveron();
+                       }
                        _this.dispatchEvent( { type: 'hoveron', object: _hovered } );
-                   } else {
+                   } else (_hovered !== null) {
+                       if ("onhoveroff" in _hovered) {
+                           _hovered.onhoveroff();
+                       }
                        _this.dispatchEvent( { type: 'hoveroff', object: _hovered } );
                        _hovered = null;
                        _domElement.style.cursor = 'auto';
@@ -192,7 +202,8 @@ site three [=
                 var _raycaster = new THREE.Raycaster();
 
                 var _offset = new THREE.Vector3();
-                var _selected, _hovered;
+                var _selected = null;
+                var _hovered = null;
 
                 var p3subp1 = new THREE.Vector3();
                 var targetposition = new THREE.Vector3();
@@ -219,8 +230,8 @@ site three [=
         event_handler mousedown [=
            name = controls_var + ".onmousedown"
            declare [/
-               function( event ) {
-                   if ( _this.enabled === false ) {
+               function(event) {
+                   if (_this.enabled === false) {
                        return;
                    }
                   
@@ -230,12 +241,15 @@ site three [=
                    var intersects = _raycaster.intersectObjects( _objects );
                    var ray = _raycaster.ray;
                    var normal = ray.direction; // normal ray to the camera position
-                   if ( intersects.length > 0 ) {
-                       _selected = intersects[ 0 ];
+                   if (intersects.length > 0) {
+                       _selected = intersects[0];
                        _selected.ray = ray;
                        _selected.normal = normal ;
-                       _offset.copy( _selected.point ).sub( _selected.object.position );
+                       _offset.copy(_selected.point).sub(_selected.object.position);
                        _domElement.style.cursor = 'move';
+                       if ("ondragstart" in _selected) {
+                           _selected.ondragstart();
+                       }
                        _this.dispatchEvent( { type: 'dragstart', object: _selected } );
                    }
                }
@@ -248,6 +262,9 @@ site three [=
                function( event ) {
                    event.preventDefault();
                    if ( _selected ) {
+                       if ("ondragend" in _selected) {
+                           _selected.ondragend();
+                       }
                        _this.dispatchEvent( { type: 'dragend', object: _selected } );
                        _selected = null;
                    }
@@ -260,7 +277,7 @@ site three [=
            name = controls_var + ".onmousemove"
            declare [/
                function( event ) {
-                   if ( _this.enabled === false ) {
+                   if (_this.enabled === false) {
                        return;
                    }
 
@@ -269,18 +286,18 @@ site three [=
                    _raycaster.setFromCamera( mouse, _camera );
 
                    var ray = _raycaster.ray;
-                   if ( _selected ) {
+                   if (_selected) {
                        var normal = _selected.normal;
                        var denom = normal.dot( ray.direction );
-                       if ( denom == 0 ) {
+                       if (denom == 0) {
                            console.log( 'no or infinite solutions' );
                            return;
                        }
 
-                       var num = normal.dot( p3subp1.copy( _selected.point ).sub( ray.origin ) );
+                       var num = normal.dot(p3subp1.copy(_selected.point).sub(ray.origin));
                        var u = num / denom;
 
-                       targetposition.copy( ray.direction ).multiplyScalar( u ).add( ray.origin ).sub( _offset );
+                       targetposition.copy(ray.direction).multiplyScalar(u).add(ray.origin).sub(_offset);
 
                        [=
                            if (!x_lock) [/
@@ -294,21 +311,29 @@ site three [=
                            |]
                        =]
 
+                       if ("ondrag" in _selected) {
+                           _selected.ondrag();
+                       }
                        _this.dispatchEvent( { type: 'drag', object: _selected } );
                        return;
                    }
 
                   var intersects = _raycaster.intersectObjects( _objects );
-                  if ( intersects.length > 0 ) {
+                  if (intersects.length > 0) {
                       _domElement.style.cursor = 'pointer';
-                      _hovered = intersects[ 0 ];
+                      _hovered = intersects[0];
+                       if ("onhoveron" in _hovered) {
+                           _hovered.onhoveron();
+                       }
                        _this.dispatchEvent( { type: 'hoveron', object: _hovered } );
-                  } else {
+                  } else if (_hovered !== null) {
+                       if ("onhoveroff" in _hovered) {
+                           _hovered.onhoveroff();
+                       }
                        _this.dispatchEvent( { type: 'hoveroff', object: _hovered } );
                       _hovered = null;
                       _domElement.style.cursor = 'auto';
                   }
-
                }
            |]
         =]

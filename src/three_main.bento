@@ -372,6 +372,18 @@ site three [=
                     [= interact; =]
                 };
             |]
+            
+            with (on_point_to) [/
+                [= name; =].onselect = function() {
+                    [= on_point_to; =]
+                };
+            |]
+
+            with (on_drag) [/
+                [= name; =].ondrag = function() {
+                    [= on_drag; =]
+                };
+            |]
         =]
     =]
 
