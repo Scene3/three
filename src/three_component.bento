@@ -3,7 +3,7 @@
  --
  -- Component for rendering three.js content
  --
- -- Copyright (c) 2013 by Michael St. Hippolyte
+ -- Copyright (c) 2013-2017 by Michael St. Hippolyte
  --
  --/
  
@@ -40,12 +40,12 @@ site three [=
         /---- optional overrides ----/
   
         dynamic default_handler_name(event) = canvas_name + "_" + event
-        dynamic handle(event) [=
+        dynamic javascript handle(event) [=
             default_handler_name(event);
             [| (); |]            
         =] 
 
-        dynamic recalc_canvas_size_logic [=
+        dynamic javascript recalc_canvas_size_logic [=
             if (size_to_window) [|
                 var x = 0;
                 var y = 0;
@@ -135,15 +135,15 @@ site three [=
 
         /------------- controls --------------/
     
-        dynamic add_controls [=
+        dynamic javascript add_controls [=
             for controls c in canvas_controls [=
                 c.attach(canvas_camera);
                 c.add_listeners(canvas_id);
             =]
         =]
 
-        dynamic activate_controls(boolean flag),
-                                 (controls_type, boolean flag) [=
+        dynamic javascript activate_controls(boolean flag),
+                                            (controls_type, boolean flag) [=
                                  
             with (controls_type) [=
                 for controls c in canvas_controls [=
@@ -160,7 +160,7 @@ site three [=
             =]
         =]
 
-        dynamic declare_controls [=
+        dynamic javascripts declare_controls [=
             for controls c in canvas_controls [=
                 c.declare;
             =]
@@ -196,22 +196,22 @@ site three [=
             for s in include_scripts [|
                 <script src="[= s; =]"></script>
             |]
+
             info_log("instantiating main_script");
+
+            [| <script> |]
             main_script;
+            [| </script> |]    
          =]
 
     
-         main_script [=
+         javascript main_script [=
 
             debug_log("main_script called with scene " + this_scene.name + " with " + this_scene.objs.count + " objects");
-            
             debug_log(" obj[0] " + this_scene.objs[0].type); 
-            
             for three_object o in this_scene.objs [=
                 debug_log("   ..." + o.type);
             =]
-                    
-            [| <script> |]
             
             /-- create the canvas for rendering, and in the process see 
              -- if HTML5 and WebGL are supported
@@ -283,14 +283,12 @@ site three [=
             
             js_comment_log("declare global functions");
             declare_funcs;
-
-            [| </script> |]    
         =]
 
         /** Declare top level variables, including the  variable corresponding to this 
          *  component.
          **/
-        declare_global_vars [|
+        javascript declare_global_vars [|
             var [= canvas_container; =] = document.getElementById("[= id; =]");
             var canvasWidth = [= canvas_container; =].clientWidth;
             var canvasHeight = [= canvas_container; =].clientHeight;
@@ -300,14 +298,14 @@ site three [=
         |]  
         
         camera this_cam = this_scene.cam
-        assign_global_vars [|
+        javascript assign_global_vars [|
             [= canvas_renderer; =] = this_renderer;
             [= canvas_scene; =] = [= this_scene.name; =];
             [= canvas_camera; =] = [= this_scene.cam.name; =];
 
         |]
 
-        update_global_vars(params{}) [=
+        javascript update_global_vars(params{}) [=
             cam_pos = canvas_camera + ".position"
                    
             if (params{"camera_x"}) [=
@@ -332,7 +330,7 @@ site three [=
         
         
         /** Create the canvas, depending on what kind of graphics support is available on the client. **/
-        create_canvas [|
+        javascript create_canvas [|
              var [= canvas_name; =] = document.createElement("canvas");
              [= canvas_name; =].id = "[= canvas_id; =]";
              var canvasEnabled = [= canvas_name; =] && !!window.CanvasRenderingContext2D;
@@ -356,7 +354,7 @@ site three [=
         
                       
         /** Declare functions. **/
-        declare_funcs [=
+        javascript declare_funcs [=
             declare_utils;
             render.declare;
             post_render.declare;                
@@ -368,7 +366,7 @@ site three [=
         
         
         /** Run the animation. **/
-        run [|
+        javascript run [|
             animate();
         |]
 
@@ -407,7 +405,7 @@ site three [=
         =]
        
        
-        declare_utils [|
+        javascript declare_utils [|
 
             function resizeCanvas() {
                 recalcCanvasSize();

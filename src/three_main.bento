@@ -90,7 +90,7 @@ site three [=
          *  handles the common statement prologue.
          **/  
 
-        member [=
+        javascript member [=
             name = owner.type
 
             owner.name;
@@ -133,7 +133,7 @@ site three [=
             [| ); |]
         =]
         
-        dynamic generate [= 
+        dynamic javascript generate [= 
             debug_log("constructing object " + name);
             sub;
         =]
@@ -146,10 +146,10 @@ site three [=
       
         parameters[] = []
       
-        body [?]
+        javascript body [?]
 
         /-- declare the function --/
-        declare [/
+        javascript declare [/
             [= debug_log("declaring function " + name + " with " + parameters.count + " parameters"); =]
             function [= name; =]([= item_list(parameters); =]) {
             [= body; =]
@@ -177,7 +177,7 @@ site three [=
 
     /---- primitives ----/
     
-    dynamic vector3(xx, yy, zz) [=
+    dynamic javascript vector3(xx, yy, zz) [=
         double x = xx
         double y = yy
         double z = zz
@@ -192,7 +192,7 @@ site three [=
     dynamic vector3(*) rotation(xx, yy, zz) [/]
     
 
-    dynamic three_color(c) [=
+    dynamic javascript three_color(c) [=
         keep: int color = c
         
         [/ new THREE.Color([= color; =]) |]
@@ -217,9 +217,9 @@ site three [=
         
         /-- optional event handlers --/
 
-        on_point_to [?]
-        on_hover_over [?]
-        on_drag [?]
+        javascript on_point_to [?]
+        javascript on_hover_over [?]
+        javascript on_drag [?]
         
         /-- check for defined handlers --/
 
@@ -265,13 +265,13 @@ site three [=
 
         
         /-- animation logic, called for each frame if defined --/
-        next_frame [?]
+        javascript next_frame [?]
 
         /-- interaction logic, called to handle user interaction --/
-        interact [?]
+        javascript interact [?]
         
 
-        dynamic add(three_object obj) [=
+        dynamic javascript add(three_object obj) [=
             debug_log("....adding " + obj.name + " to " + name);
             name;
             [| .add( |]
@@ -279,33 +279,33 @@ site three [=
             [| ); |]
         =]
         
-        dynamic rotate(float x, float y, float z) [=
+        dynamic javascript rotate(float x, float y, float z) [=
             newline;
             name; [| .rotation.x += [= x; =]; |]
             name; [| .rotation.y += [= y; =]; |]
             name; [| .rotation.z += [= z; =]; |]
         =]
         
-        dynamic orient(float x, float y, float z) [=
+        dynamic javascript orient(float x, float y, float z) [=
             newline;
             name; [| .rotation.x = [= x; =]; |]
             name; [| .rotation.y = [= y; =]; |]
             name; [| .rotation.z = [= z; =]; |]
         =]
         
-        dynamic rotate_on_axis(vector3 axis, float angle) [=
+        dynamic javascript rotate_on_axis(vector3 axis, float angle) [=
             newline;
             name; [| .rotateOnAxis([= axis; =],[= angle; =]); |]
         =]
 
-        dynamic move(float x, float y, float z) [=
+        dynamic javascript move(float x, float y, float z) [=
             newline;
             name; [| .position.x += [= x; =]; |]
             name; [| .position.y += [= y; =]; |]
             name; [| .position.z += [= z; =]; |]
         =]
 
-        dynamic locate(float x, float y, float z) [=
+        dynamic javascript locate(float x, float y, float z) [=
             newline;
             name; [| .position.x = [= x; =]; |]
             name; [| .position.y = [= y; =]; |]
@@ -320,7 +320,7 @@ site three [=
             name = "rotation"
         =]
 
-        dynamic construct [=
+        dynamic javascript construct [=
             debug_log("...constructing " + three_class + "...");
             debug_log("    ...args: " + (string) args);  
             debug_log("    ...options: " + (string) options);  
@@ -340,7 +340,7 @@ site three [=
             [| ) |]
         =]
 
-        dynamic set_attributes [=
+        dynamic javascript set_attributes [=
             debug_log("setting position of " + owner.type + " to " + pos);
             with (pos) [/
                 [= name; =].position.set([= pos.x; =], [= pos.y; =], [= pos.z; =]);
@@ -450,7 +450,7 @@ site three [=
         three_class = owner.type
         position pos = position(0, 0, 0)
         name [?]
-        decl [?]
+        javascript decl [?]
     =]
 
 
@@ -464,12 +464,12 @@ site three [=
         
         options{} = { if (canv_name) [= "canvas": canv_name =] }
      
-        set_size(width, height) [=
+        javascript set_size(width, height) [=
             owner.name;
             [| .setSize([= width; =], [= height; =]); |]
         =]
 
-        set_attributes [/]
+        javascript set_attributes [/]
         
         this generate [=                
             set_size(width, height);
@@ -494,9 +494,9 @@ site three [=
 
     /------------- raycaster -------------/
 
-    dynamic raycaster(),
-                     (vector3 origin, vector3 direction),
-                     (vector3 origin, vector3 direction, near, far) [=
+    dynamic javascript raycaster(),
+                                (vector3 origin, vector3 direction),
+                                (vector3 origin, vector3 direction, near, far) [=
         three_class = "Raycaster"
     
         with (near)        [| new THREE.Raycaster([= origin; =], [= direction; =], [= near; =], [= far; =]) |]
@@ -514,7 +514,7 @@ site three [=
                           (three_object[] scene_objs) [=
         three_class = "Scene"
 
-        next_frame [=
+        javascript next_frame [=
             for three_object o in objs [=
                  if (o.next_frame) [=
                      js_comment("next_frame for " + o.name);
@@ -523,9 +523,7 @@ site three [=
             =]
         =]
         
-        interact [=
-        
-        
+        javascript interact [=
         =]
 
         keep: three_object objs[] = scene_objs
@@ -658,7 +656,7 @@ site three [=
                 soft_light
             ]
             
-            next_frame [=
+            javascript next_frame [=
                 blue_cube.rotate(0.002, -0.002, -0.001);
             =]
         =]

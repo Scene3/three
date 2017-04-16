@@ -114,8 +114,8 @@ site three [=
                        _selected.ray = ray;
                        _selected.normal = normal ;
                        _offset.copy( _selected.point ).sub( _selected.object.position );
-                       if ("onselect" in _selected) {
-                           _selected.onselect();
+                       if ("onselect" in _selected.object) {
+                           _selected.object.onselect();
                        }
                        _this.dispatchEvent( { type: 'select', object: _selected } );
                    }
@@ -151,13 +151,13 @@ site three [=
                    if (intersects.length > 0) {
                        _domElement.style.cursor = 'pointer';
                        _hovered = intersects[0];
-                       if ("onhoveron" in _hovered) {
-                           _hovered.onhoveron();
+                       if ("onhoveron" in _hovered.object) {
+                           _hovered.object.onhoveron();
                        }
                        _this.dispatchEvent( { type: 'hoveron', object: _hovered } );
-                   } else (_hovered !== null) {
-                       if ("onhoveroff" in _hovered) {
-                           _hovered.onhoveroff();
+                   } else if (_hovered !== null) {
+                       if ("onhoveroff" in _hovered.object) {
+                           _hovered.object.onhoveroff();
                        }
                        _this.dispatchEvent( { type: 'hoveroff', object: _hovered } );
                        _hovered = null;
@@ -247,8 +247,8 @@ site three [=
                        _selected.normal = normal ;
                        _offset.copy(_selected.point).sub(_selected.object.position);
                        _domElement.style.cursor = 'move';
-                       if ("ondragstart" in _selected) {
-                           _selected.ondragstart();
+                       if ("ondragstart" in _selected.object) {
+                           _selected.object.ondragstart();
                        }
                        _this.dispatchEvent( { type: 'dragstart', object: _selected } );
                    }
@@ -262,8 +262,8 @@ site three [=
                function( event ) {
                    event.preventDefault();
                    if ( _selected ) {
-                       if ("ondragend" in _selected) {
-                           _selected.ondragend();
+                       if ("ondragend" in _selected.object) {
+                           _selected.object.ondragend();
                        }
                        _this.dispatchEvent( { type: 'dragend', object: _selected } );
                        _selected = null;
@@ -311,8 +311,8 @@ site three [=
                            |]
                        =]
 
-                       if ("ondrag" in _selected) {
-                           _selected.ondrag();
+                       if ("ondrag" in _selected.object) {
+                           _selected.object.ondrag();
                        }
                        _this.dispatchEvent( { type: 'drag', object: _selected } );
                        return;
@@ -322,13 +322,13 @@ site three [=
                   if (intersects.length > 0) {
                       _domElement.style.cursor = 'pointer';
                       _hovered = intersects[0];
-                       if ("onhoveron" in _hovered) {
-                           _hovered.onhoveron();
+                       if ("onhoveron" in _hovered.object) {
+                           _hovered.object.onhoveron();
                        }
                        _this.dispatchEvent( { type: 'hoveron', object: _hovered } );
                   } else if (_hovered !== null) {
-                       if ("onhoveroff" in _hovered) {
-                           _hovered.onhoveroff();
+                       if ("onhoveroff" in _hovered.object) {
+                           _hovered.object.onhoveroff();
                        }
                        _this.dispatchEvent( { type: 'hoveroff', object: _hovered } );
                       _hovered = null;
